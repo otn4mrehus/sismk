@@ -1,4 +1,4 @@
-## Penjelasan Implementasi ##
+## Rencana Implementasi ##
 ### A. Struktur Database ##
 ```
 1. periode_prakerin - Mengelola periode aktif prakerin
