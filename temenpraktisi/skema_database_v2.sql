@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS sekolah (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ---------------------------------------------------------
--- 7. TABEL KELOMPOK PKL (DITAMBAH periode_pkl_id)
+-- 7. TABEL KELOMPOK PKL 
 ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS kelompok (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -154,8 +154,7 @@ CREATE TABLE IF NOT EXISTS presensi (
     lng_pulang DECIMAL(11,8),
     status ENUM('hadir','ijin','sakit','alpa') DEFAULT 'hadir',
     FOREIGN KEY (siswa_id) REFERENCES siswa(id),
-    FOREIGN KEY (kelompok_id) REFERENCES kelompok(id),
-    FOREIGN KEY (instansi_id) REFERENCES instansi(id)
+    FOREIGN KEY (kelompok_id) REFERENCES kelompok(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ---------------------------------------------------------
