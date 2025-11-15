@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ---------------------------------------------------------
--- 4. TABEL PERIODE PKL (BARU)
+-- 4. TABEL PERIODE PKL 
 ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS periode_pkl (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS sekolah (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ---------------------------------------------------------
--- 7. TABEL KELOMPOK PKL (DITAMBAH periode_pkl_id)
+-- 7. TABEL KELOMPOK PKL 
 ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS kelompok (
     id INT AUTO_INCREMENT PRIMARY KEY,
