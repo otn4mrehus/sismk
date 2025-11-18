@@ -58,6 +58,7 @@ CREATE TABLE siswa (
     id_siswa INT AUTO_INCREMENT PRIMARY KEY,
     nis VARCHAR(50) UNIQUE NOT NULL,
     nama_siswa VARCHAR(150) NOT NULL,
+    gender ENUM('L','P') DEFAULT 'L',
     id_kelas INT NOT NULL,
     FOREIGN KEY (id_kelas) REFERENCES kelas(id_kelas)
 );
@@ -185,8 +186,11 @@ CREATE TABLE presensi_pkl (
     waktu_presensi DATETIME NOT NULL,
     latitude DECIMAL(10,7),
     longitude DECIMAL(10,7),
-    status_radius ENUM('valid','invalid') DEFAULT 'invalid',
+    status_masuk ENUM('tepat_waktu','terlambat') DEFAULT 'tepat_waktu',
+    status_pulang ENUM('pulang_cepat','tepat_waktu','tidak_presensi') DEFAULT 'tepat_waktu',
     foto_path VARCHAR(255) NOT NULL,
+    keterangan_terlambat TEXT,
+    keterangan_pulang_cepat TEXT,
     keterangan TEXT,
     FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok),
@@ -194,26 +198,12 @@ CREATE TABLE presensi_pkl (
 );
 
 
-/* ============================================================
-    9. VALIDASI PRESENSI (JARAK, STATUS)
-   ============================================================ */
-
-CREATE TABLE validasi_presensi (
-    id_validasi INT AUTO_INCREMENT PRIMARY KEY,
-    id_presensi INT NOT NULL,
-    jarak_meter INT,
-    hasil ENUM('dalam_radius','luar_radius') DEFAULT 'dalam_radius',
-    pesan_validasi TEXT,
-    waktu_validasi DATETIME NOT NULL,
-    FOREIGN KEY (id_presensi) REFERENCES presensi_pkl(id_presensi)
-);
-
 
 /* ============================================================
     10. FACE LOG PRESENSI (WAJAH)
    ============================================================ */
 
-CREATE TABLE face_log (
+/*CREATE TABLE face_log (
     id_face_log INT AUTO_INCREMENT PRIMARY KEY,
     id_presensi INT NOT NULL,
     id_siswa INT NOT NULL,
@@ -224,7 +214,7 @@ CREATE TABLE face_log (
     FOREIGN KEY (id_presensi) REFERENCES presensi_pkl(id_presensi),
     FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa)
 );
-
+*/
 
 /* ============================================================
     11. LAMPIRAN DOKUMEN
