@@ -9,18 +9,25 @@ CREATE TABLE periode_pkl (
     tahun_akhir YEAR NOT NULL,
     tgl_mulai DATE NOT NULL,
     tgl_selesai DATE NOT NULL,
-    status ENUM('aktif','nonaktif') DEFAULT 'aktif'
+    status ENUM('aktif','nonaktif') DEFAULT 'aktif',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE jurusan (
     id_jurusan INT AUTO_INCREMENT PRIMARY KEY,
-    nama_jurusan VARCHAR(100) NOT NULL
+    nama_jurusan VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE kelas (
     id_kelas INT AUTO_INCREMENT PRIMARY KEY,
     nama_kelas VARCHAR(50) NOT NULL,
+    wali_kelas VARCHAR(100) NOT NULL,
     id_jurusan INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_jurusan) REFERENCES jurusan(id_jurusan)
 );
 
@@ -37,7 +44,9 @@ CREATE TABLE industri (
     longitude DECIMAL(10,7),
     radius_izin INT DEFAULT 100,
     kontak_pic VARCHAR(100),
-    telp_pic VARCHAR(50)
+    telp_pic VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE pembimbing_industri (
@@ -46,6 +55,8 @@ CREATE TABLE pembimbing_industri (
     nama VARCHAR(150) NOT NULL,
     jabatan VARCHAR(100),
     kontak VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_industri) REFERENCES industri(id_industri)
 );
 
@@ -61,6 +72,8 @@ CREATE TABLE siswa (
     gender ENUM('L','P') DEFAULT 'L',
     foto VARCHAR(255),
     id_kelas INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kelas) REFERENCES kelas(id_kelas)
 );
 
@@ -68,7 +81,9 @@ CREATE TABLE guru (
     id_guru INT AUTO_INCREMENT PRIMARY KEY,
     nama_guru VARCHAR(150) NOT NULL,
     nip VARCHAR(50),
-    kontak VARCHAR(50)
+    kontak VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 
@@ -83,6 +98,8 @@ CREATE TABLE kelompok_pkl (
     kode_kelompok VARCHAR(50) NOT NULL,
     status ENUM('pengajuan','disetujui','berjalan','selesai','ditolak') DEFAULT 'pengajuan',
     catatan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_periode) REFERENCES periode_pkl(id_periode),
     FOREIGN KEY (id_industri) REFERENCES industri(id_industri)
 );
@@ -93,6 +110,8 @@ CREATE TABLE kelompok_siswa (
     status_pkl ENUM('aktif','bermasalah','dijemput_awal','selesai') DEFAULT 'aktif',
     catatan TEXT,
     tgl_update DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY(id_kelompok, id_siswa),
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok),
     FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa)
@@ -109,6 +128,8 @@ CREATE TABLE pembimbing_sekolah (
     id_guru INT NOT NULL,
     peran ENUM('pengantar','monitoring','penjemput') NOT NULL,
     tgl_assign DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok),
     FOREIGN KEY (id_guru) REFERENCES guru(id_guru)
 );
@@ -124,6 +145,8 @@ CREATE TABLE pengajuan_kelompok (
     tgl_pengajuan DATE NOT NULL,
     status ENUM('menunggu','disetujui','ditolak') DEFAULT 'menunggu',
     catatan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok)
 );
 
@@ -135,6 +158,8 @@ CREATE TABLE pengantaran (
     bertemu_dengan VARCHAR(150),
     foto VARCHAR(255),
     catatan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok),
     FOREIGN KEY (id_guru) REFERENCES guru(id_guru)
 );
@@ -148,6 +173,8 @@ CREATE TABLE monitoring (
     foto VARCHAR(255),
     hasil_monitoring TEXT,
     saran TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok),
     FOREIGN KEY (id_guru) REFERENCES guru(id_guru),
     FOREIGN KEY (id_pembimbing_industri) REFERENCES pembimbing_industri(id_pembimbing_industri)
@@ -159,6 +186,8 @@ CREATE TABLE penjemputan (
     id_guru INT NOT NULL,
     tgl_penjemputan DATE NOT NULL,
     catatan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok),
     FOREIGN KEY (id_guru) REFERENCES guru(id_guru)
 );
@@ -176,6 +205,8 @@ CREATE TABLE penjemputan_siswa (
     tgl_penjemputan DATE NOT NULL,
     alasan TEXT,
     foto VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok),
     FOREIGN KEY (id_guru) REFERENCES guru(id_guru)
@@ -193,6 +224,8 @@ CREATE TABLE progress_kelompok (
     status ENUM('pending','proses','done') DEFAULT 'pending',
     tgl_update DATETIME NOT NULL,
     keterangan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok)
 );
 
@@ -267,10 +300,15 @@ CREATE TABLE presensi_pkl (
     longitude DECIMAL(10,7),
     status_masuk ENUM('tepat_waktu','terlambat') DEFAULT 'tepat_waktu',
     status_pulang ENUM('pulang_cepat','tepat_waktu','tidak_presensi') DEFAULT 'tepat_waktu',
+    
     foto VARCHAR(255) NOT NULL,
     keterangan_terlambat TEXT,
     keterangan_pulang_cepat TEXT,
     keterangan TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     FOREIGN KEY (id_siswa) REFERENCES siswa(id_siswa),
     FOREIGN KEY (id_kelompok) REFERENCES kelompok_pkl(id_kelompok),
     FOREIGN KEY (id_periode) REFERENCES periode_pkl(id_periode)
@@ -286,7 +324,9 @@ CREATE TABLE lampiran_kegiatan (
     kategori ENUM('pengajuan','pengantaran','monitoring','penjemputan') NOT NULL,
     id_referensi INT NOT NULL,
     file_path VARCHAR(255) NOT NULL,
-    keterangan TEXT
+    keterangan TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 
@@ -301,5 +341,7 @@ CREATE TABLE log_aktivitas (
     tabel VARCHAR(100),
     id_data INT,
     waktu DATETIME NOT NULL,
-    deskripsi TEXT
+    deskripsi TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
