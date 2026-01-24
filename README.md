@@ -13,3 +13,7 @@ Sistem Manajemen Praktik Kerja Industri, merupakan kelanjutan Bukan-Simalas yang
 
 ### My Link
 Sistem Manajemen Alamat Situs untuk mempermudah menuliskan atau mencatat link situs atau semacam bookmark yang kita simpan di website
+
+### Catatanku
+Sistem penyimpan dan berbagi catatan dan referensi situs
+
