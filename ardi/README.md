@@ -12,7 +12,7 @@ Fitur Sistem Arsip Digital
 ```
 /
 ├── uploads
-│   ├── foto
+│   ├── photo
 │   └── arsip
 └── backups
 
