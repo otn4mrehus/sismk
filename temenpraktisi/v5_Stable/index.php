@@ -1054,7 +1054,7 @@ while($row = $res->fetch_assoc()):
 <div class="bottom-nav">
 <a href="?page=admin" class="nav-item <?= $page=='admin'?'active':'' ?>"><i class="fas fa-tachometer-alt"></i> Admin</a>
 <a href="?page=admin#adm-rekap" class="nav-item <?= strpos($_SERVER['REQUEST_URI'], '#adm-rekap') !== false ? 'active' : '' ?>"><i class="fas fa-chart-bar"></i> Rekap</a>
-<a href="?page=logout" class="nav-item"><i class="fas fa-power-off"></i> Logout</a>
+<a href="?page=logout" class="nav-item"><i class="fas fa-power-off"></i> Keluar</a>
 </div>
 <?php endif; ?>
 <?php endif; ?>
