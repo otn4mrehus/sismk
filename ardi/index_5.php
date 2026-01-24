@@ -7,11 +7,11 @@ ob_start();
 // =============================================
 
 // Konfigurasi Database
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_HOST', '_SERVER_');
+define('DB_USER', '_USER_');
+define('DB_PASS', '_PASSWORD_');
 define('DB_NAME', 'siardi');
-define('BASE_URL', 'http://siardi.smknegeri6kotaserang.my.id');
+define('BASE_URL', 'http://siardi._DOMAIN_');
 
 // Path upload berdasarkan jenis
 define('UPLOAD_BASE_PATH', __DIR__ . '/uploads/');
