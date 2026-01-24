@@ -10,3 +10,6 @@ Bukti Unjuk Kehadiran dengan Sistem Manajemen Kelas ini, salah satu presensi yan
 
 ### Teman Praktisi
 Sistem Manajemen Praktik Kerja Industri, merupakan kelanjutan Bukan-Simalas yang berlaku untuk kebutuh presensi di tempat PKL, agar terpantau secara menyeluruh bagi para guru (wali kelas maupun pembimbing siswanya). Fitur multi lokasi sesuai keberadaan indsutri di beberapa tempat menyesuaikan sistem yang berlaku di lingkungan atau lokasi PKL yang tetap terpantau dengan baik oleh sekolah dimanapun siswa tersebut berada 
+
+### My Link
+Sistem Manajemen Alamat Situs untuk mempermudah menuliskan atau mencatat link situs atau semacam bookmark yang kita simpan di website
