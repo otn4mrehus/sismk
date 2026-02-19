@@ -8,8 +8,15 @@ Container/Docker :
 ````
 ### Akses Direktori 
 ````
-mkdir -p amanat/uploads/
++ amanat/
+  - index.php
+  + uploads/
+  + qrcode/
+````
+````
+mkdir -p amanat/{uploads,qrcode}/
 chmod -R 0777 amanat/uploads/
+chmod -R 0777 amanat/qrcode/
 ````
 ### Jalankan
 ````
