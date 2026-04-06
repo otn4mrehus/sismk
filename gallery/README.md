@@ -4,3 +4,7 @@
 mkdir -p upload && \
 chmod -R 0777 upload
 ```
+#### Import DB
+```
+galeri.sql
+```
