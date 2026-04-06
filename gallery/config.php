@@ -1,8 +1,8 @@
 <?php
-define('DB_HOST', 'galeridb');
-define('DB_USER', 'root');
-define('DB_PASS', 'toor');
-define('DB_NAME', 'galeri_db');
+define('DB_HOST', '_HOST_');
+define('DB_USER', '_USER_');
+define('DB_PASS', '_PASS_');
+define('DB_NAME', '_DB_');
 
 $conn = null;
 
