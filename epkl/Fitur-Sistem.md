@@ -40,6 +40,7 @@ Aplikasi ini merupakan:
 ---
 
 ### B. Struktur Modul
+```
 SYSTEM CORE
 ├── Authentication & Session
 ├── Master Data Management
@@ -48,7 +49,7 @@ SYSTEM CORE
 ├── Approval System
 ├── Reporting & Monitoring
 ├── Settings & Configuration
-
+```
 ---
 
 ##  3. Blueprint Fitur Sistem
