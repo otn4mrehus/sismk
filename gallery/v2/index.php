@@ -331,7 +331,7 @@ $targetPath = $subDir . '/' . $newFilename;
                             $relativePath = "upload/foto/{$tahun}/{$bulan}/{$catName}/{$slugTitle}/{$newFilename}";
                             $sortOrder = ($fileCount - $i) * 10;
 
-                            dbInsert("INSERT INTO photos (user_id, username, title, description, category, filename, filepath, is_private, views, batch_id, album_id, album_title, photo_label, album_sort_order, created_at, file_hash) VALUES (0, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, NOW(), ?)",
+                            dbInsert("INSERT INTO photos (user_id, username, title, description, category, filename, filepath, is_private, views, batch_id, album_id, album_title, photo_label, album_sort_order, created_at, file_hash) VALUES (0, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, NOW(), ?)",
                                 [$guestName, $title, $description, $category, $newFilename, $relativePath, $batchId, $albumId, $albumTitle, $photoLabel, $sortOrder, $fileHash]);
                             $uploaded++;
                         }
@@ -400,7 +400,7 @@ $targetPath = $subDir . '/' . $newFilename;
                         $relativePath = "upload/foto/{$tahun}/{$bulan}/{$catName}/{$slugTitle}/{$newFilename}";
                         $sortOrder = ($fileCount - $i) * 10;
                         
-                        dbInsert("INSERT INTO photos (user_id, username, title, description, category, filename, filepath, is_private, views, batch_id, album_id, album_title, photo_label, album_sort_order, created_at, file_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, NOW(), ?)",
+                        dbInsert("INSERT INTO photos (user_id, username, title, description, category, filename, filepath, is_private, views, batch_id, album_id, album_title, photo_label, album_sort_order, created_at, file_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, NOW(), ?)",
                             [$userId, $username, $title, $description, $category, $newFilename, $relativePath, $isPrivate, $batchId, $albumId, $albumTitle, $photoLabel, $sortOrder, $fileHash]);
                         $uploaded++;
                 }
@@ -2095,9 +2095,9 @@ $csrfToken = generateCsrfToken();
                 <div class="col-lg-7">
                     <h1>Galeri Sekolah </h1>
                     <p class="lead mb-4">Unggah, Berbagi dan Berkabar dengan Galeri Kegiatan SMKN 6 Kota Serang.</p>
-                    <button class="btn btn-upload btn-lg" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                    <!--<button class="btn btn-upload btn-lg" data-bs-toggle="modal" data-bs-target="#uploadModal">
                         <i class="fas fa-cloud-upload-alt me-2"></i>Upload Gambar/Foto
-                    </button>
+                    </button>-->
                 </div>
                 <div class="col-lg-5 d-none d-lg-block">
                     <div class="text-center">
@@ -3720,12 +3720,12 @@ $csrfToken = generateCsrfToken();
                 <?php endforeach; ?>
                 
                 <!-- Add New Album Button -->
-                <div class="col-12 col-md-6 col-lg-4">
+                <!--<div class="col-12 col-md-6 col-lg-4">
                     <div class="add-album-card" onclick="showAddAlbumModal()">
                         <i class="fas fa-plus-circle"></i>
                         <p>Tambah Album Baru</p>
                     </div>
-                </div>
+                </div>-->
             </div>
             <?php endif; ?>
         </div>
