@@ -1,6 +1,6 @@
 <?php
- $db_host = 'lamppmysql';
- $db_name = 'db_catatan';
- $db_user = 'root';
- $db_pass = 'toor';
+ $db_host = '_HOST_';
+ $db_name = '_DB_';
+ $db_user = '_USER_';
+ $db_pass = '_PASS_';
 ?>
