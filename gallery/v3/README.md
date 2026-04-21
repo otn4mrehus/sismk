@@ -6,5 +6,5 @@ chmod -R 0777 upload
 ```
 #### Import DB
 ```
-galeri_db.sql
+galeri_db_xxxx.sql
 ```
