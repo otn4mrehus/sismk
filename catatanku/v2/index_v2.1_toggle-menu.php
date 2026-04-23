@@ -1053,18 +1053,47 @@ if (isset($_GET['api'])) {
     }
 
     async function loadDashboard() { loadCategories(); loadLinks(); renderHeader(); }
-    async function loadPublic() { const res = await api('get_public_links'); if(res.status === 'success') renderGrid(res.data, 'publicGrid', true); }
-    async function loadLinks() {
+    async function loadPublic() {
+        const searchVal = document.getElementById('publicSearch').value;
+        let url = 'get_public_links';
+        if(searchVal) url += `&search=${encodeURIComponent(searchVal)}`;
+        const res = await api(url);
+        if(res.status === 'success') renderGrid(res.data, 'publicGrid', true);
+    }
+    async function loadLinks(timeoutId) {
         const q = document.getElementById('searchName').value;
         const c = document.getElementById('filterCat').value;
         let url = `get_links`;
-        if(q) url += `&search=${q}`;
+        if(q) url += `&search=${encodeURIComponent(q)}`;
         if(c) url += `&cat_id=${c}`;
         const res = await api(url);
         if(res.status === 'success') {
             state.links = res.data;
             renderGrid(res.data, 'gridContainer', false);
             renderTable(res.data);
+        }
+    }
+
+    let searchTimeout;
+    function setupAutoSearch() {
+        const searchInput = document.getElementById('searchName');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    loadLinks();
+                }, 300);
+            });
+        }
+        
+        const publicSearchInput = document.getElementById('publicSearch');
+        if (publicSearchInput) {
+            publicSearchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    loadPublic();
+                }, 300);
+            });
         }
     }
     async function loadCategories() {
@@ -1514,6 +1543,7 @@ if (isset($_GET['api'])) {
     
     initTheme();
     initSidebar();
+    setupAutoSearch();
     setView('grid');
     checkSession();
 </script>
