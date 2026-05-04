@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress Renovasi Rumah</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+tailwind.config={theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','sans-serif']}}}}
+</script>
+<style>
+/* ====== DARK THEME ====== */
+:root,[data-theme="dark"]{
+  --bg:#0b0d13;--surface:#12151e;--card:#181c28;--card-alt:#1e2333;
+  --border:#272d40;--border-light:#333a52;
+  --text:#e4e6ec;--text-muted:#7a829a;
+  --accent:#d4841c;--accent-light:#f0a040;--accent-glow:rgba(212,132,28,.15);
+  --success:#22c55e;--success-bg:rgba(34,197,94,.12);
+  --danger:#ef4444;--danger-bg:rgba(239,68,68,.1);
+  --check-bg:var(--accent);--check-border:var(--accent);--check-color:#fff;
+  --chart-grid:rgba(255,255,255,.06);--chart-tick:#7a829a;
+  --shadow:0 8px 30px rgba(0,0,0,.4);--shadow-lg:0 24px 80px rgba(0,0,0,.6);
+  --scrollbar-track:var(--surface);--scrollbar-thumb:#3a4060;
+  --pulse-opacity:.7;
+}
+/* ====== LIGHT THEME ====== */
+[data-theme="light"]{
+  --bg:#f4f1eb;--surface:#ffffff;--card:#ffffff;--card-alt:#edeae3;
+  --border:#ddd9d0;--border-light:#ccc8bf;
+  --text:#1c1a16;--text-muted:#78756c;
+  --accent:#b06e0a;--accent-light:#8e5a08;--accent-glow:rgba(176,110,10,.08);
+  --success:#15803d;--success-bg:rgba(21,128,61,.08);
+  --danger:#b91c1c;--danger-bg:rgba(185,28,28,.06);
+  --check-bg:#b06e0a;--check-border:#b06e0a;--check-color:#fff;
+  --chart-grid:rgba(0,0,0,.07);--chart-tick:#78756c;
+  --shadow:0 4px 16px rgba(0,0,0,.08);--shadow-lg:0 16px 48px rgba(0,0,0,.12);
+  --scrollbar-track:#edeae3;--scrollbar-thumb:#b8b4ab;
+  --pulse-opacity:.4;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .35s,color .35s}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 600px 400px at 15% 20%,var(--accent-glow) 0%,transparent 70%),radial-gradient(ellipse 500px 500px at 85% 80%,var(--accent-glow) 0%,transparent 70%);animation:bgP 12s ease-in-out infinite alternate}
+@keyframes bgP{0%{opacity:var(--pulse-opacity)}100%{opacity:1}}
+
+::-webkit-scrollbar{width:6px;height:8px}
+::-webkit-scrollbar-track{background:var(--scrollbar-track);border-radius:4px}
+::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+
+/* Toast */
+#toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast-item{padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;background:var(--card-alt);border:1px solid var(--border);box-shadow:var(--shadow);animation:tIn .35s ease-out;display:flex;align-items:center;gap:10px}
+.toast-item.out{animation:tOut .3s ease-in forwards}
+.toast-item.success{border-color:var(--success);color:var(--success)}
+.toast-item.error{border-color:var(--danger);color:var(--danger)}
+.toast-item.info{border-color:var(--accent);color:var(--accent-light)}
+@keyframes tIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tOut{to{opacity:0;transform:translateX(60px) scale(.95)}}
+
+/* Modal */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:8000;display:none;align-items:center;justify-content:center}
+#modal-overlay.active{display:flex}
+#modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;min-width:380px;max-width:650px;width:90%;box-shadow:var(--shadow-lg);animation:mPop .3s ease-out;max-height:85vh;overflow-y:auto;transition:background .35s,border-color .35s}
+@keyframes mPop{from{opacity:0;transform:scale(.92) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+.inp{width:100%;padding:10px 14px;border-radius:8px;font-size:14px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:inherit;outline:none;transition:border-color .2s,background .35s,color .35s}
+.inp:focus{border-color:var(--accent)}
+.inp::placeholder{color:var(--text-muted)}
+.inp:disabled{opacity:0.6;cursor:not-allowed}
+label.inp-label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover:not(:disabled){background:var(--accent-light);transform:translateY(-1px)}
+.btn-secondary{background:var(--card-alt);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover:not(:disabled){background:var(--border)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid rgba(239,68,68,.2)}.btn-danger:hover:not(:disabled){background:rgba(239,68,68,.2)}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn-icon{padding:6px 8px;border-radius:6px;background:transparent;color:var(--text-muted);border:none;cursor:pointer;transition:all .2s}
+.btn-icon:hover:not(:disabled){color:var(--text);background:var(--card-alt)}
+.btn-icon:disabled{pointer-events:none}
+
+/* User List Table */
+.user-list-table{width:100%;border-collapse:collapse;margin-top:10px}
+.user-list-table th{border-bottom:1px solid var(--border);color:var(--text-muted);text-align:left;padding:8px;font-size:12px;text-transform:uppercase}
+.user-list-table td{border-bottom:1px solid var(--border-light);padding:10px;font-size:13px}
+.badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase}.badge.admin{background:var(--accent);color:#fff}.badge.pending{background:var(--danger-bg);color:var(--danger)}.badge.active{background:var(--success-bg);color:var(--success)}
+
+/* ====== TABLE SECTION ====== */
+.table-section{display:flex;flex-direction:column;border-radius:12px;border:1px solid var(--border);background:var(--card);overflow:hidden;transition:background .35s,border-color .35s}
+.table-top-scroll{overflow-x:auto;overflow-y:hidden;flex-shrink:0;height:16px;background:var(--card);border-bottom:1px solid var(--border);transition:background .35s,border-color .35s}
+.table-top-scroll::-webkit-scrollbar{height:8px}
+.table-top-scroll::-webkit-scrollbar-track{background:var(--scrollbar-track);border-radius:0}
+.table-top-scroll::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:4px}
+.table-top-scroll::-webkit-scrollbar-corner{background:transparent}
+.table-wrap{overflow-x:auto;overflow-y:auto;max-height:65vh;flex:1;transition:background .35s;position:relative}
+.table-wrap::-webkit-scrollbar-corner{background:var(--scrollbar-track)}
+
+.progress-table{border-collapse:collapse;width:max-content;min-width:100%}
+.progress-table th,.progress-table td{padding:0;text-align:center;border:1px solid var(--border);font-size:13px;transition:background .15s,border-color .35s}
+.progress-table thead th{background:var(--surface);color:var(--text-muted);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.3px;padding:10px 4px;position:sticky;top:0;z-index:10;transition:background .35s,color .35s}
+.progress-table thead th:first-child,.progress-table thead th:nth-child(2),.progress-table thead th:last-child{z-index:12}
+
+.col-no{position:sticky;left:0;z-index:5;min-width:42px;width:42px;background:var(--card);text-align:center;font-weight:600;color:var(--text-muted);font-size:12px;transition:background .35s}
+thead .col-no{background:var(--surface)}
+
+.col-name{position:sticky;left:42px;z-index:5;min-width:260px;width:290px;background:var(--card);text-align:left!important;padding:8px 14px!important;font-weight:500;font-size:13px;white-space:normal!important;overflow-wrap:break-word;word-break:break-word;line-height:1.45;transition:background .35s}
+thead .col-name{background:var(--surface)}
+
+.col-progress{position:sticky;right:0;z-index:5;min-width:130px;width:130px;background:var(--card);padding:6px 10px!important;transition:background .35s}
+thead .col-progress{background:var(--surface)}
+
+.area-row td{background:var(--card-alt)!important;padding:10px 14px!important;text-align:left!important;font-weight:800;font-size:14px;color:var(--accent-light);letter-spacing:.3px;border-bottom:2px solid var(--accent)!important;white-space:normal!important;overflow-wrap:break-word;word-break:break-word;line-height:1.45;transition:background .35s,color .35s}
+.area-header-wrap{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.area-main-info{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;flex:1;min-width:0}
+.area-desc{font-weight:400;font-size:12px;color:var(--text-muted);transition:color .35s}
+.area-actions{display:flex;gap:6px;flex-shrink:0}
+
+.sub-row:hover td{background:rgba(212,132,28,.04)!important}
+[data-theme="light"] .sub-row:hover td{background:rgba(176,110,10,.04)!important}
+.sub-row .col-name{display:flex;flex-direction:column;gap:3px}
+.sub-name-text{overflow-wrap:break-word;word-break:break-word}
+.sub-name-actions{display:flex;gap:4px}
+
+.area-summary td{background:var(--surface)!important;padding:8px 14px!important;text-align:left!important;font-size:12px;font-weight:600;color:var(--text-muted);border-top:1px solid var(--border)!important;transition:background .35s,color .35s}
+.area-summary .col-name{color:var(--accent-light)}
+
+.day-cell{min-width:36px;width:36px;padding:2px!important;cursor:pointer;transition:background .15s;position:relative}
+.day-cell:hover:not(.read-only){background:rgba(212,132,28,.08)!important}
+[data-theme="light"] .day-cell:hover:not(.read-only){background:rgba(176,110,10,.06)!important}
+.day-cell.read-only{cursor:not-allowed;opacity:0.7}
+.day-check{width:22px;height:22px;border-radius:4px;border:1.5px solid var(--border-light);display:inline-flex;align-items:center;justify-content:center;transition:all .2s;cursor:pointer;background:transparent;color:transparent;font-size:11px}
+.day-check.checked{background:var(--check-bg);border-color:var(--check-border);color:var(--check-color);box-shadow:0 0 8px rgba(212,132,28,.25)}
+[data-theme="light"] .day-check.checked{box-shadow:0 0 6px rgba(176,110,10,.2)}
+.read-only .day-check{cursor:not-allowed;}
+
+/* Note Icon */
+.note-icon{position:absolute;top:2px;right:2px;font-size:10px;color:var(--text-muted);opacity:0.5;cursor:pointer;z-index:10;transition:all .2s}
+.note-icon:hover{color:var(--accent-light);transform:scale(1.2)}
+.note-icon.active{color:var(--accent);opacity:1}
+
+/* Note Popup */
+#note-popup{position:fixed;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;box-shadow:var(--shadow-lg);z-index:10000;width:250px;display:none;animation:popIn .2s ease-out}
+#note-popup textarea{width:100%;height:80px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;resize:none;margin-bottom:8px;font-family:inherit}
+#note-popup .footer{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-muted)}
+@keyframes popIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+
+.pbar-wrap{width:100%;height:8px;background:var(--surface);border-radius:4px;overflow:hidden;transition:background .35s}
+.pbar-fill{height:100%;border-radius:4px;transition:width .5s ease;background:linear-gradient(90deg,var(--accent),var(--accent-light))}
+.pbar-fill.complete{background:linear-gradient(90deg,var(--success),#4ade80)}
+.pbar-text{font-size:11px;font-weight:700;margin-top:2px}
+
+.day-header{cursor:pointer;transition:all .15s}
+.day-header:hover{color:var(--accent-light)!important;background:var(--card)!important}
+.day-header.read-only{cursor:not-allowed;}
+.off-day-header{color:var(--danger)!important;opacity:0.7}
+.off-cell{background:rgba(239,68,68,.06)!important}
+.off-cell .day-check{border-color:var(--danger);opacity:0.5}
+.off-day-icon{pointer-events:none}
+
+.tab-btn{padding:10px 22px;font-size:14px;font-weight:600;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit}
+.tab-btn.active{color:var(--accent-light);border-bottom-color:var(--accent)}
+.tab-btn:hover{color:var(--text)}
+
+.summary-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;transition:all .3s}
+.summary-card:hover{border-color:var(--border-light);transform:translateY(-2px);box-shadow:var(--shadow)}
+.summary-val{font-size:32px;font-weight:900;line-height:1.1}
+.summary-label{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;transition:background .35s,border-color .35s}
+.chart-card h3{font-size:16px;font-weight:700;margin-bottom:16px;color:var(--text)}
+
+.sub-input-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.sub-input-row .inp{flex:1}
+.sub-num{font-size:12px;color:var(--text-muted);font-weight:600;min-width:28px}
+.sub-target-input{padding:6px 8px!important}
+.off-cell{background:rgba(239,68,68,.06)!important}
+.off-cell .day-check{border-color:var(--danger);opacity:0.5}
+
+.theme-toggle{width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card-alt);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .25s}
+.theme-toggle:hover{color:var(--accent-light);border-color:var(--accent);transform:rotate(15deg)}
+
+.scroll-active-btn{position:relative;overflow:hidden}
+.scroll-active-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(212,132,28,.1),transparent);transform:translateX(-100%);animation:shimmer 2.5s infinite}
+@keyframes shimmer{to{transform:translateX(100%)}}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.anim-in{animation:slideUp .4s ease-out both}
+.anim-d1{animation-delay:.05s}.anim-d2{animation-delay:.1s}.anim-d3{animation-delay:.15s}.anim-d4{animation-delay:.2s}
+
+/* Auth Badge */
+.auth-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid var(--border)}
+.auth-badge.guest{background:rgba(239,68,68,.1);color:var(--danger);border-color:rgba(239,68,68,.3)}
+.auth-badge.logged-in{background:var(--success-bg);color:var(--success);border-color:var(--success)}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media(max-width:768px){
+  .col-name{min-width:180px;width:210px;font-size:12px}
+  .col-no{min-width:36px;width:36px}
+  .col-name{left:36px}
+  .summary-val{font-size:24px}
+  #modal-box{min-width:auto;padding:20px}
+  .area-main-info{flex-direction:column;gap:2px}
+}
+</style>
+</head>
+<body>
+
+<div id="toast-wrap"></div>
+<div id="modal-overlay" role="dialog" aria-modal="true"><div id="modal-box"></div></div>
+
+<!-- Note Popup -->
+<div id="note-popup">
+  <div style="font-size:11px;color:var(--accent-light);font-weight:700;margin-bottom:4px">CATATAN HARIAN</div>
+  <textarea id="note-input" placeholder="Tulis catatan di sini..."></textarea>
+  <div class="footer">
+    <span>Tersimpan Otomatis</span>
+    <i class="fas fa-times btn-icon" onclick="closeNotePopup()" style="padding:2px"></i>
+  </div>
+</div>
+
+<div style="position:relative;z-index:1">
+
+  <!-- Header -->
+  <header style="background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;transition:background .35s,border-color .35s">
+    <div style="max-width:1600px;margin:auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-light));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="fas fa-hard-hat" style="color:#fff;font-size:18px"></i>
+        </div>
+        <div style="min-width:0">
+          <h1 id="header-title" style="font-size:15px;font-weight:800;margin:0;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:520px"></h1>
+          <p style="font-size:12px;color:var(--text-muted);margin:0;font-weight:500;transition:color .35s">Aplikasi Progress Project Renovasi Rumah</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <!-- Auth Badge -->
+        <div id="auth-status-display" class="auth-badge guest"><i class="fas fa-lock"></i> TAMU (Hanya Lihat)</div>
+        <button id="auth-btn" class="btn btn-primary btn-sm" onclick="openLoginModal()"><i class="fas fa-sign-in-alt"></i> Login</button>
+        
+        <!-- Manage Users (Admin Only) -->
+        <button id="admin-users-btn" class="btn btn-secondary btn-sm" style="display:none" onclick="openUserManageModal()"><i class="fas fa-users-cog"></i> User</button>
+
+        <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" title="Ganti Tema" aria-label="Ganti Tema"><i class="fas fa-moon"></i></button>
+        <button class="btn btn-secondary btn-sm" onclick="openSettingsModal()"><i class="fas fa-cog"></i> Pengaturan</button>
+        <button class="btn btn-secondary btn-sm" onclick="openOffDaysModal()" title="Kelola Hari Off"><i class="fas fa-calendar-minus"></i> Off</button>
+        
+        <!-- Sync Server Button -->
+        <button class="btn btn-primary btn-sm auth-action" onclick="syncToServer()" style="background-color:#3b82f6"><i class="fas fa-cloud-upload-alt"></i> Sync ke Server</button>
+        
+        <!-- Import/Export Section -->
+        <div style="display:flex;gap:4px">
+           <button class="btn btn-secondary btn-sm" onclick="downloadCSVTemplate()"><i class="fas fa-file-csv"></i> Template</button>
+           <button class="btn btn-primary btn-sm auth-action" onclick="document.getElementById('csv-file').click()"><i class="fas fa-file-import"></i> CSV</button>
+           <button class="btn btn-secondary btn-sm"><i class="fas fa-download"></i> JSON</button>
+           <button class="btn btn-secondary btn-sm auth-action" onclick="importJSON()"><i class="fas fa-upload"></i> JSON</button>
+        </div>
+
+        <button class="btn btn-danger btn-sm auth-action" onclick="confirmReset()"><i class="fas fa-trash-alt"></i> Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tab -->
+  <nav style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;transition:background .35s,border-color .35s">
+    <div style="max-width:1600px;margin:auto;display:flex;gap:4px">
+      <button class="tab-btn active" data-tab="table" onclick="switchTab('table')"><i class="fas fa-table" style="margin-right:6px"></i>Tabel Progress</button>
+      <button class="tab-btn" data-tab="chart" onclick="switchTab('chart')"><i class="fas fa-chart-bar" style="margin-right:6px"></i>Grafik Rekapitulasi</button>
+    </div>
+  </nav>
+
+  <main style="max-width:1600px;margin:auto;padding:24px">
+
+    <!-- View: Tabel -->
+    <div id="view-table">
+      <div id="summary-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:13px;color:var(--text-muted)"><i class="fas fa-calendar-alt" style="margin-right:4px"></i> Periode:</span>
+          <span id="period-text" style="font-size:13px;font-weight:600;color:var(--accent-light)"></span>
+          <button class="btn btn-secondary btn-sm scroll-active-btn" onclick="scrollToFirstUnchecked()" id="scroll-active-btn" style="display:none"><i class="fas fa-crosshairs"></i> Hari Aktif</button>
+        </div>
+        <button class="btn btn-primary auth-action" onclick="openAreaModal()"><i class="fas fa-plus"></i> Tambah Area</button>
+      </div>
+
+      <!-- Table Section -->
+      <div class="table-section">
+        <div class="table-top-scroll" id="table-top-scroll">
+          <div id="table-top-spacer" style="height:1px"></div>
+        </div>
+        <div class="table-wrap" id="table-container"></div>
+      </div>
+    </div>
+
+    <!-- View: Grafik -->
+    <div id="view-chart" style="display:none">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap" class="anim-in">
+        <div><label class="inp-label">Filter Area</label><select id="chart-filter-area" class="inp" style="min-width:200px" onchange="renderCharts()"><option value="all">Semua Area</option></select></div>
+        <div><label class="inp-label">Dari Tanggal</label><input type="date" id="chart-date-from" class="inp" style="width:160px" onchange="renderCharts()"></div>
+        <div><label class="inp-label">Sampai Tanggal</label><input type="date" id="chart-date-to" class="inp" style="width:160px" onchange="renderCharts()"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <div class="chart-card anim-in anim-d1"><h3><i class="fas fa-chart-bar" style="color:var(--accent);margin-right:8px"></i>Progress per Area</h3><canvas id="chart-area-bar"></canvas></div>
+        <div class="chart-card anim-in anim-d2"><h3><i class="fas fa-chart-pie" style="color:var(--accent);margin-right:8px"></i>Status Keseluruhan</h3><canvas id="chart-overall-donut"></canvas></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr;gap:20px">
+        <div class="chart-card anim-in anim-d3"><h3><i class="fas fa-chart-line" style="color:var(--accent);margin-right:8px"></i>Progress Harian Kumulatif</h3><canvas id="chart-daily-line"></canvas></div>
+      </div>
+      <div class="chart-card anim-in anim-d4" id="chart-detail-section" style="margin-top:20px;display:none">
+        <h3><i class="fas fa-list-check" style="color:var(--accent);margin-right:8px"></i>Detail Sub-Pekerjaan per Area</h3><canvas id="chart-sub-bar"></canvas>
+      </div>
+      <div class="chart-card anim-in anim-d4" style="margin-top:20px">
+        <h3><i class="fas fa-file-alt" style="color:var(--accent);margin-right:8px"></i>Tabel Rekapitulasi</h3>
+        <div id="recap-table-wrap" style="overflow-x:auto"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Hidden Inputs -->
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+<input type="file" id="csv-file" accept=".csv" style="display:none" onchange="handleCSVImport(event)">
+
+<script>
+const BULAN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const STORAGE_KEY='renovasi_progress_data';
+const USERS_KEY='renovasi_users';
+const SESSION_KEY='renovasi_session';
+const THEME_KEY='renovasi_theme';
+
+// SERVER CONFIGURATION - GANTI URL INI DENGAN URL SERVER ANDA
+const SERVER_API_URL = 'https://api.example.com/save-project'; 
+
+let idCounter=Date.now();
+let currentUser = null;
+let currentNoteKey = null;
+
+function genId(){return'id_'+(idCounter++)}
+function addDays(ds,n){const d=new Date(ds+'T00:00:00');d.setDate(d.getDate()+n);return d}
+function fmtDate(ds){const d=new Date(ds+'T00:00:00');return d.getDate()+' '+BULAN[d.getMonth()]}
+function fmtDateFull(ds){const d=new Date(ds+'T00:00:00');return d.getDate()+' '+BULAN[d.getMonth()]+' '+d.getFullYear()}
+function getDayDate(i){const d=addDays(state.startDate,i);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function escHtml(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function escAttr(s){return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ======================== SERVER SYNC ========================
+async function syncToServer() {
+    if(!currentUser) { toast('Akses ditolak. Harap Login.', 'error'); return; }
+    
+    // Ambil data terbaru dari LocalStorage
+    const dataToSend = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    
+    if(!dataToSend) {
+        toast('Tidak ada data lokal untuk disinkronkan.','info');
+        return;
+    }
+
+    const btn = document.querySelector('button[onclick="syncToServer()"]');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+
+    try {
+        const response = await fetch(SERVER_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + currentUser // Optional: Send user token if needed
+            },
+            body: JSON.stringify(dataToSend)
+        });
+
+        if (response.ok) {
+            toast('Data berhasil disimpan ke Server!', 'success');
+        } else {
+            throw new Error('Server merespon dengan error: ' + response.status);
+        }
+    } catch (error) {
+        console.error('Sync Error:', error);
+        toast('Gagal sync ke server: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+// ======================== NOTE POPUP ========================
+function openNotePopup(e, subId, dayIndex) {
+    e.stopPropagation(); // Mencegah toggleCheck
+    if(!currentUser) { toast('Login untuk menambah catatan', 'info'); return; }
+    
+    currentNoteKey = subId + '_' + dayIndex;
+    const popup = document.getElementById('note-popup');
+    const input = document.getElementById('note-input');
+    
+    // Load existing note
+    input.value = state.dailyNotes[currentNoteKey] || '';
+    
+    // Position popup near cursor but within viewport
+    const rect = e.target.getBoundingClientRect();
+    popup.style.left = (rect.left + 20) + 'px';
+    popup.style.top = (rect.top + 20) + 'px';
+    
+    // Adjust if off screen
+    if(parseInt(popup.style.left) + 250 > window.innerWidth) {
+        popup.style.left = (window.innerWidth - 270) + 'px';
+    }
+    if(parseInt(popup.style.top) + 200 > window.innerHeight) {
+        popup.style.top = (rect.top - 200) + 'px';
+    }
+
+    popup.style.display = 'block';
+    input.focus();
+}
+
+function closeNotePopup() {
+    document.getElementById('note-popup').style.display = 'none';
+    currentNoteKey = null;
+}
+
+function handleNoteInput(e) {
+    if(!currentNoteKey) return;
+    const val = e.target.value;
+    if(val.trim() === '') {
+        delete state.dailyNotes[currentNoteKey];
+    } else {
+        state.dailyNotes[currentNoteKey] = val;
+    }
+    saveState(); // Simpan real-time ke LocalStorage
+    renderTable(); 
+}
+
+// Event Listener untuk menutup popup saat klik di luar
+document.addEventListener('click', function(e) {
+    const popup = document.getElementById('note-popup');
+    const input = document.getElementById('note-input');
+    if (window.getComputedStyle(popup).display === 'block') {
+        if (!popup.contains(e.target) && !e.target.classList.contains('note-icon')) {
+            closeNotePopup();
+        }
+    }
+});
+
+// ======================== AUTHENTICATION ========================
+async function hashPassword(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function getUsers() {
+    try {
+        const users = localStorage.getItem(USERS_KEY);
+        return users ? JSON.parse(users) : [];
+    } catch(e) { return []; }
+}
+
+function initUsers() {
+    let users = getUsers();
+    
+    // LOGIKA PERBAIKAN ADMIN (SELF-HEALING)
+    hashPassword('123456').then(defaultHash => {
+        const adminUser = users.find(u => u.username === 'admin');
+        let needsSave = false;
+
+        if (!adminUser) {
+            // Jika admin belum ada, buat baru
+            users.push({
+                username: 'admin', 
+                passwordHash: defaultHash, 
+                role: 'admin', 
+                approved: true
+            });
+            needsSave = true;
+        } else {
+            // Jika admin sudah ada, perbaiki status jika rusak
+            if (!adminUser.approved || adminUser.role !== 'admin') {
+                adminUser.approved = true;
+                adminUser.role = 'admin';
+                needsSave = true;
+            }
+        }
+
+        if (needsSave) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+    });
+}
+
+function checkAuth() {
+    const session = localStorage.getItem(SESSION_KEY);
+    if(session) {
+        currentUser = session;
+    } else {
+        currentUser = null;
+    }
+    updateAuthUI();
+}
+
+function updateAuthUI() {
+    const btn = document.getElementById('auth-btn');
+    const badge = document.getElementById('auth-status-display');
+    const authActions = document.querySelectorAll('.auth-action');
+    const adminBtn = document.getElementById('admin-users-btn');
+
+    if(currentUser) {
+        badge.className = 'auth-badge logged-in';
+        badge.innerHTML = `<i class="fas fa-user-check"></i> ${currentUser}`;
+        btn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+        btn.onclick = logout;
+        btn.className = 'btn btn-danger btn-sm';
+        
+        authActions.forEach(el => el.disabled = false);
+        if(currentUser === 'admin') {
+            adminBtn.style.display = 'inline-flex';
+        } else {
+            adminBtn.style.display = 'none';
+        }
+    } else {
+        badge.className = 'auth-badge guest';
+        badge.innerHTML = `<i class="fas fa-lock"></i> TAMU (Hanya Lihat)`;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+        btn.onclick = openLoginModal;
+        btn.className = 'btn btn-primary btn-sm';
+
+        authActions.forEach(el => el.disabled = true);
+        adminBtn.style.display = 'none';
+    }
+    
+    renderTable();
+}
+
+function openLoginModal() {
+    showModal(`
+    <div style="text-align:center; margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;margin:0 0 10px 0;color:var(--accent-light)">Login Pengguna</h2>
+        <p style="font-size:13px;color:var(--text-muted)">Masuk untuk mengedit data project.</p>
+    </div>
+    <div style="margin-bottom:16px">
+        <label class="inp-label">Username</label>
+        <input type="text" id="login-user" class="inp" placeholder="Masukkan username">
+    </div>
+    <div style="margin-bottom:20px">
+        <label class="inp-label">Password</label>
+        <input type="password" id="login-pass" class="inp" placeholder="Masukkan password">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn btn-secondary" onclick="hideModal()">Batal</button>
+        <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+    </div>
+    <div style="margin-top:15px; text-align:center; font-size:12px;">
+        <a href="#" onclick="openRegisterModal();return false;" style="color:var(--accent-light)">Belum punya akun? Daftar</a>
+    </div>
+    `);
+}
+
+function openRegisterModal() {
+    showModal(`
+    <div style="text-align:center; margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;margin:0 0 10px 0;color:var(--accent-light)">Daftar Baru</h2>
+        <p style="font-size:13px;color:var(--text-muted)">Buat akun pengguna baru (Perlu persetujuan admin).</p>
+    </div>
+    <div style="margin-bottom:16px">
+        <label class="inp-label">Username Baru</label>
+        <input type="text" id="reg-user" class="inp" placeholder="Username">
+    </div>
+    <div style="margin-bottom:20px">
+        <label class="inp-label">Password</label>
+        <input type="password" id="reg-pass" class="inp" placeholder="Password">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn btn-secondary" onclick="hideModal()">Batal</button>
+        <button class="btn btn-primary" onclick="handleRegister()">Daftar</button>
+    </div>
+    <div style="margin-top:15px; text-align:center; font-size:12px;">
+        <a href="#" onclick="openLoginModal();return false;" style="color:var(--accent-light)">Kembali ke Login</a>
+    </div>
+    `);
+}
+
+async function handleLogin() {
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value;
+    if(!u || !p) { toast('Username dan password wajib diisi','error'); return; }
+
+    const hash = await hashPassword(p);
+    const users = getUsers();
+    const user = users.find(x => x.username === u && x.passwordHash === hash);
+
+    if(user) {
+        if(!user.approved) {
+            toast('Akun belum disetujui oleh admin. Silakan tunggu.','error');
+            return;
+        }
+        currentUser = user.username;
+        localStorage.setItem(SESSION_KEY, currentUser);
+        hideModal();
+        updateAuthUI();
+        toast(`Selamat datang, ${currentUser}!`, 'success');
+    } else {
+        toast('Username atau password salah','error');
+    }
+}
+
+async function handleRegister() {
+    const u = document.getElementById('reg-user').value.trim();
+    const p = document.getElementById('reg-pass').value;
+    if(!u || !p) { toast('Username dan password wajib diisi','error'); return; }
+    
+    let users = getUsers();
+    if(users.find(x => x.username === u)) { toast('Username sudah dipakai','error'); return; }
+
+    const hash = await hashPassword(p);
+    users.push({
+        username: u, 
+        passwordHash: hash, 
+        role: 'user', 
+        approved: false
+    });
+    
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    toast('Pendaftaran berhasil! Menunggu persetujuan admin.', 'info');
+    openLoginModal();
+}
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem(SESSION_KEY);
+    updateAuthUI();
+    toast('Anda telah logout','info');
+}
+
+function openUserManageModal() {
+    const users = getUsers();
+    let h = `
+    <div style="text-align:center; margin-bottom:20px">
+        <h2 style="font-size:18px;font-weight:800;margin:0 0 10px 0;color:var(--accent-light)">Manajemen User</h2>
+        <p style="font-size:13px;color:var(--text-muted)">Setujui atau hapus pengguna.</p>
+    </div>
+    <div style="max-height:400px;overflow-y:auto">
+        <table class="user-list-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th style="text-align:right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    if(users.length === 0) {
+        h += `<tr><td colspan="4" style="text-align:center">Tidak ada user.</td></tr>`;
+    } else {
+        users.forEach(u => {
+            const isSelf = u.username === 'admin';
+            const statusBadge = u.approved 
+                ? '<span class="badge active">Aktif</span>' 
+                : '<span class="badge pending">Pending</span>';
+            
+            const roleBadge = u.role === 'admin' 
+                ? '<span class="badge admin">Admin</span>' 
+                : '<span class="badge" style="background:#ccc;color:#333">User</span>';
+
+            let actions = '';
+            if(isSelf) {
+                actions = '<span style="color:var(--text-muted);font-size:11px">Default Admin</span>';
+            } else {
+                if(u.approved) {
+                    actions += `<button class="btn btn-secondary btn-sm" onclick="toggleUserStatus('${u.username}', false)">Revoke</button> `;
+                } else {
+                    actions += `<button class="btn btn-primary btn-sm" onclick="toggleUserStatus('${u.username}', true)">Approve</button> `;
+                }
+                actions += `<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.username}')"><i class="fas fa-trash"></i></button>`;
+            }
+
+            h += `
+                <tr>
+                    <td style="font-weight:600">${escHtml(u.username)}</td>
+                    <td>${roleBadge}</td>
+                    <td>${statusBadge}</td>
+                    <td style="text-align:right">${actions}</td>
+                </tr>
+            `;
+        });
+    }
+
+    h += `</tbody></table></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button class="btn btn-secondary" onclick="hideModal()">Tutup</button>
+    </div>`;
+    showModal(h);
+}
+
+function toggleUserStatus(username, status) {
+    let users = getUsers();
+    const userIndex = users.findIndex(u => u.username === username);
+    if(userIndex > -1) {
+        users[userIndex].approved = status;
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        openUserManageModal();
+        toast(status ? 'User disetujui (Approved)' : 'Akses user dicabut (Revoked)', 'success');
+    }
+}
+
+function deleteUser(username) {
+    if(!confirm(`Hapus user ${username}?`)) return;
+    let users = getUsers();
+    users = users.filter(u => u.username !== username);
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    openUserManageModal();
+    toast('User berhasil dihapus', 'success');
+}
+
+// ======================== APP STATE ========================
+function getDefaultState(){
+  return{
+    projectName:"PROGRES RENOVASI RESIDENCE HOUSE- BLOK AC NO.21 A",
+    startDate:"2026-04-22",totalDays:30,
+    dailyNotes: {},
+    weeklyOff:{enabled:false,days:[0,6]},
+    customOffDates:[],
+    areas:[
+      {id:genId(),name:"DAPUR",description:"Biaya ganti meja dapur",subItems:[
+        {id:genId(),name:"Ganti zink",checkedDays:[],targetDays:2},
+        {id:genId(),name:"Lemari bawah",checkedDays:[],targetDays:3},
+        {id:genId(),name:"Kitchen utensil",checkedDays:[],targetDays:1}
+      ]},
+      {id:genId(),name:"KAMAR MANDI",description:"Biaya perbaikan kamar mandi",subItems:[
+        {id:genId(),name:"Keramik Lantai",checkedDays:[],targetDays:5},
+        {id:genId(),name:"Ganti tempat pembuangan air (kamar mandi dan area cuci)",checkedDays:[],targetDays:2},
+        {id:genId(),name:"Dinding keramik dan kloset dibersihkan",checkedDays:[],targetDays:2},
+        {id:genId(),name:"Ganti tutup toilet",checkedDays:[],targetDays:1},
+        {id:genId(),name:"Dinding kamar mandi",checkedDays:[],targetDays:4},
+        {id:genId(),name:"Ganti kran, hilangkan shower",checkedDays:[],targetDays:1},
+        {id:genId(),name:"Bikin tempat sabun permanen",checkedDays:[],targetDays:1},
+        {id:genId(),name:"Pasang pintu kamar mandi",checkedDays:[],targetDays:2},
+        {id:genId(),name:"Pasang jemuran depan kamar mandi",checkedDays:[],targetDays:1},
+        {id:genId(),name:"Tambah colokan buat mesin cuci",checkedDays:[],targetDays:1},
+        {id:genId(),name:"Rapikan kabel exhaust fan",checkedDays:[],targetDays:1}
+      ]},
+      {id:genId(),name:"TERAS",description:"Biaya perbaikan teras",subItems:[
+        {id:genId(),name:"Bangku duduk",checkedDays:[],targetDays:2},
+        {id:genId(),name:"Lemari bawah bangku",checkedDays:[],targetDays:2},
+        {id:genId(),name:"Tembok dan terakota",checkedDays:[],targetDays:3},
+        {id:genId(),name:"Lantai teras",checkedDays:[],targetDays:3},
+        {id:genId(),name:"Lampu-lampu di teras",checkedDays:[],targetDays:1},
+        {id:genId(),name:"Colokan listrik di teras",checkedDays:[],targetDays:1}
+      ]},
+      {id:genId(),name:"GUDANG MELAYANG",description:"Biaya pembuatan gudang",subItems:[]},
+      {id:genId(),name:"LAIN-LAIN",description:"Biaya lain-lain",subItems:[
+        {id:genId(),name:"Menutup tembok pembatas rumah",checkedDays:[],targetDays:3},
+        {id:genId(),name:"Mengecek retak-retak rambut",checkedDays:[],targetDays:2},
+        {id:genId(),name:"Merapikan bagian atas",checkedDays:[],targetDays:2},
+        {id:genId(),name:"Mengecat seluruh rumah",checkedDays:[],targetDays:7},
+        {id:genId(),name:"Dudukan TV di Tembok",checkedDays:[],targetDays:1}
+      ]}
+    ]
+  };
+}
+
+let state=getDefaultState();
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    console.error("Gagal menyimpan data:", e);
+    toast("Penyimpanan browser penuh!", "error");
+  }
+}
+
+function loadState(){
+  try{
+    const r=localStorage.getItem(STORAGE_KEY);
+    if(r){
+      const parsed = JSON.parse(r);
+      if(parsed.projectName && parsed.areas && Array.isArray(parsed.areas)){
+        state = parsed;
+        state.areas.forEach(a=>a.subItems.forEach(s=>{if(typeof s.targetDays==='undefined')s.targetDays=1}));
+        if(!state.weeklyOff)state.weeklyOff={enabled:false,days:[]};
+        if(!state.customOffDates)state.customOffDates=[];
+        return true;
+      }
+    }
+  }catch(e){
+    console.error("Gagal memuat data:", e);
+  }
+  return false;
+}
+
+// ======================== CSV LOGIC ========================
+function downloadCSVTemplate(){
+  const header = "ProjectName,StartDate,TotalDays,AreaName,AreaDesc,SubItemName,TargetDays,CheckedDays";
+  const row1 = `"${state.projectName}",${state.startDate},${state.totalDays},,,,`;
+  const row2 = `,,"DAPUR","Biaya dapur","Ganti zink","2","0, 5"`;
+  const row3 = `,,"DAPUR","Biaya dapur","Lemari bawah","3","1"`;
+  const row4 = `,,"KAMAR MANDI","Perbaikan KM","Keramik Lantai","5",""`;
+  const csvContent = [header, row1, row2, row3, row4].join("\n");
+  
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", "template_renovasi_progress.csv");
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  toast('Template CSV berhasil diunduh', 'success');
+}
+
+function handleCSVImport(e){
+  if(!currentUser) { toast('Akses ditolak. Harap Login.', 'error'); e.target.value=''; return; }
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const text = ev.target.result;
+      const parsedState = parseCSV(text);
+      if(parsedState){
+        showModal(`<h2 style="font-size:18px;font-weight:800;margin:0 0 12px 0;color:var(--accent)"><i class="fas fa-file-import" style="margin-right:8px"></i>Konfirmasi Import CSV</h2>
+        <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px">Data proyek saat ini akan ditimpa dengan data dari CSV.<br><strong>Project: ${escHtml(parsedState.projectName)}</strong><br>Area: ${parsedState.areas.length}</p>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button class="btn btn-secondary" onclick="hideModal()">Batal</button>
+          <button class="btn btn-primary" onclick="confirmImportCSV()">Lanjut Import</button>
+        </div>`);
+        window._tempImportState = parsedState;
+      }
+    }catch(err){
+      toast('Gagal membaca CSV: '+err.message,'error');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+function confirmImportCSV(){
+  if(!currentUser) return;
+  if(window._tempImportState){
+    state = window._tempImportState;
+    delete window._tempImportState;
+    saveState();
+    hideModal();
+    renderTable();
+    toast('Data CSV berhasil diimpor & tersimpan','success');
+  }
+}
+
+function parseCSV(text){
+  const lines = text.split(/\r\n|\n|\r/).filter(l => l.trim() !== '');
+  if(lines.length < 2) throw new Error("CSV terlalu pendek atau kosong.");
+
+  const parseLine = (line) => {
+    const res = [];
+    let inQuote = false;
+    let current = '';
+    for(let i=0; i<line.length; i++){
+      const char = line[i];
+      if(char === '"'){
+        inQuote = !inQuote;
+      } else if(char === ',' && !inQuote){
+        res.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    res.push(current.trim());
+    return res;
+  };
+
+  const parsedLines = lines.map(parseLine);
+  
+  let startIndex = 0;
+  if(parsedLines[0][0].toLowerCase().includes('project')) startIndex = 1;
+
+  const configRow = parsedLines[startIndex];
+  const projectName = configRow[0].replace(/^"|"$/g, '') || "Project Tanpa Nama";
+  const startDate = configRow[1];
+  const totalDays = parseInt(configRow[2]) || 30;
+
+  if(!startDate) throw new Error("StartDate tidak ditemukan di CSV.");
+
+  const areasMap = {};
+
+  for(let i=startIndex+1; i<parsedLines.length; i++){
+    const cols = parsedLines[i];
+    if(cols.length < 5) continue;
+
+    const areaName = cols[3].replace(/^"|"$/g, '');
+    const areaDesc = cols[4].replace(/^"|"$/g, '');
+    const subName = cols[5].replace(/^"|"$/g, '');
+    const targetDays = parseInt(cols[6]) || 1;
+    const checkedDaysStr = cols[7] || "";
+
+    if(!areaName && !subName) continue;
+    if(!areaName) continue; 
+
+    if(!areasMap[areaName]){
+      areasMap[areaName] = {
+        id: genId(),
+        name: areaName,
+        description: areaDesc,
+        subItems: []
+      };
+    } else {
+      if(areaDesc) areasMap[areaName].description = areaDesc;
+    }
+
+    if(subName){
+      const checkedDays = checkedDaysStr.split(',')
+        .map(s => parseInt(s.trim()))
+        .filter(n => !isNaN(n) && n >= 0 && n < totalDays);
+      
+      areasMap[areaName].subItems.push({
+        id: genId(),
+        name: subName,
+        checkedDays: checkedDays,
+        targetDays: targetDays
+      });
+    }
+  }
+
+  return {
+    projectName,
+    startDate,
+    totalDays,
+    dailyNotes: {}, 
+    weeklyOff:{enabled:false,days:[]},
+    customOffDates:[],
+    areas: Object.values(areasMap)
+  };
+}
+
+// ======================== THEME ========================
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelector('#theme-btn i').className=t==='dark'?'fas fa-moon':'fas fa-sun';
+  localStorage.setItem(THEME_KEY,t);
+  if(document.getElementById('view-chart').style.display!=='none')setTimeout(renderCharts,60);
+}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme')||'dark';applyTheme(c==='dark'?'light':'dark')}
+function initTheme(){applyTheme(localStorage.getItem(THEME_KEY)||'dark')}
+
+// ======================== TOAST ========================
+function toast(msg,type='info'){
+  const w=document.getElementById('toast-wrap'),el=document.createElement('div');
+  el.className='toast-item '+type;
+  const ic={success:'fa-check-circle',error:'fa-exclamation-circle',info:'fa-info-circle'};
+  el.innerHTML='<i class="fas '+(ic[type]||ic.info)+'"></i>'+msg;
+  w.appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),300)},2800);
+}
+
+// ======================== MODAL ========================
+function showModal(h){document.getElementById('modal-box').innerHTML=h;document.getElementById('modal-overlay').classList.add('active')}
+function hideModal(){document.getElementById('modal-overlay').classList.remove('active')}
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)hideModal()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')hideModal()});
+
+// ======================== PROGRESS ========================
+function getTargetDays(s){return s.targetDays||1}
+function calcSubProgress(s){const t=getTargetDays(s);return t<=0?0:Math.min(100,Math.round((s.checkedDays.length/t)*100))}
+function calcAreaProgress(a){if(!a.subItems.length)return 0;return Math.round(a.subItems.reduce((s,x)=>s+calcSubProgress(x),0)/a.subItems.length)}
+function calcAreaTotalDays(a){return a.subItems.reduce((s,x)=>s+getTargetDays(x),0)}
+function calcOverallProgress(){const w=state.areas.filter(a=>a.subItems.length>0);if(!w.length)return 0;return Math.round(w.reduce((s,a)=>s+calcAreaProgress(a),0)/w.length)}
+function calcOverallTotalDays(){return state.areas.reduce((s,a)=>s+calcAreaTotalDays(a),0)}
+function totalSubItems(){return state.areas.reduce((s,a)=>s+a.subItems.length,0)}
+
+// ======================== OFF DAYS ========================
+const HARI_NAMA=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const HARI_SHORT=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+
+function getDateKey(ds){return ds}
+function isWeeklyOffDay(d){
+  if(!state.weeklyOff||!state.weeklyOff.enabled)return false;
+  return state.weeklyOff.days.includes(d.getDay());
+}
+function isCustomOffDate(ds){
+  return state.customOffDates&&state.customOffDates.find(o=>o.date===ds);
+}
+function isOffDay(d){
+  const ds=d.toISOString().split('T')[0];
+  return isWeeklyOffDay(d)||isCustomOffDate(ds);
+}
+function isOffDayByDateStr(ds){
+  const d=new Date(ds+'T00:00:00');
+  return isWeeklyOffDay(d)||isCustomOffDate(ds);
+}
+function addCustomOffDate(ds,note){
+  if(!state.customOffDates)state.customOffDates=[];
+  if(!state.customOffDates.find(o=>o.date===ds)){
+    state.customOffDates.push({date:ds,note:note||''});
+    state.customOffDates.sort((a,b)=>a.date.localeCompare(b.date));
+  }
+}
+function removeCustomOffDate(ds){
+  if(state.customOffDates)state.customOffDates=state.customOffDates.filter(o=>o.date!==ds);
+}
+function toggleWeeklyOffDay(dayIndex){
+  if(!state.weeklyOff)state.weeklyOff={enabled:true,days:[]};
+  const idx=state.weeklyOff.days.indexOf(dayIndex);
+  if(idx>=0)state.weeklyOff.days.splice(idx,1);else state.weeklyOff.days.push(dayIndex);
+  state.weeklyOff.days.sort((a,b)=>a-b);
+}
+
+// ======================== SCROLL SYNC ========================
+let _syncing=false;
+function initScrollSync(){
+  const topS=document.getElementById('table-top-scroll');
+  const wrap=document.getElementById('table-container');
+  if(!topS || !wrap) return;
+  topS.addEventListener('scroll',()=>{if(_syncing)return;_syncing=true;wrap.scrollLeft=topS.scrollLeft;_syncing=false});
+  wrap.addEventListener('scroll',()=>{if(_syncing)return;_syncing=true;topS.scrollLeft=wrap.scrollLeft;_syncing=false});
+}
+
+function findFirstUncheckedDay(){
+  for(let d=0;d<state.totalDays;d++){
+    const ds=getDayDate(d);
+    if(isOffDayByDateStr(ds))continue;
+    let has=false;
+    state.areas.forEach(a=>a.subItems.forEach(s=>{if(s.checkedDays.includes(d))has=true}));
+    if(!has)return d;
+  }
+  return -1;
+}
+
+function scrollToFirstUnchecked(){
+  const dayIdx=findFirstUncheckedDay();if(dayIdx<0)return;
+  const wrap=document.getElementById('table-container');if(!wrap)return;
+  const target=dayIdx*36;
+  wrap.scrollTo({left:target,behavior:'smooth'});
+}
+
+function syncTopSpacerWidth(){
+  const spacer=document.getElementById('table-top-spacer');
+  const table=document.querySelector('.progress-table');
+  if(spacer&&table)spacer.style.width=table.scrollWidth+'px';
+}
+
+// ======================== TAB ========================
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.getElementById('view-table').style.display=tab==='table'?'':'none';
+  document.getElementById('view-chart').style.display=tab==='chart'?'':'none';
+  if(tab==='chart'){populateChartFilters();renderCharts()}
+}
+
+// ======================== RENDER: RINGKASAN ========================
+function renderSummary(){
+  const ov=calcOverallProgress(),total=totalSubItems();
+  const done=state.areas.reduce((s,a)=>s+a.subItems.filter(x=>calcSubProgress(x)>=100).length,0);
+  const end=getDayDate(state.totalDays-1);
+  const totalProjectDays=calcOverallTotalDays();
+  let offDaysCount=0;
+  for(let d=0;d<state.totalDays;d++){if(isOffDayByDateStr(getDayDate(d)))offDaysCount++;}
+  let offDaysLabel='';
+  if(state.weeklyOff&&state.weeklyOff.enabled&&state.weeklyOff.days.length){
+    offDaysLabel+=HARI_SHORT[state.weeklyOff.days[0]];
+    if(state.weeklyOff.days.length>1)offDaysLabel+=' +'+(state.weeklyOff.days.length-1);
+    offDaysLabel=' ('+offDaysLabel+')';
+  }
+  document.getElementById('summary-cards').innerHTML=`
+    <div class="summary-card anim-in anim-d1"><div class="summary-val" style="color:${ov>=100?'var(--success)':'var(--accent-light)'}">${ov}%</div><div class="summary-label">Progress Keseluruhan</div><div class="pbar-wrap" style="margin-top:10px"><div class="pbar-fill ${ov>=100?'complete':''}" style="width:${ov}%"></div></div></div>
+    <div class="summary-card anim-in anim-d2"><div class="summary-val" style="color:var(--text)">${state.areas.length}</div><div class="summary-label">Area Pekerjaan</div></div>
+    <div class="summary-card anim-in anim-d3"><div class="summary-val" style="color:var(--text)">${done}<span style="font-size:16px;color:var(--text-muted);font-weight:400"> / ${total}</span></div><div class="summary-label">Sub-Pekerjaan Selesai</div></div>
+    <div class="summary-card anim-in anim-d4"><div class="summary-val" style="color:var(--text)">${state.totalDays}</div><div class="summary-label">Total Hari Timeline</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">${fmtDateFull(state.startDate)} &mdash; ${fmtDateFull(end)}</div></div>
+    <div class="summary-card anim-in anim-d4"><div class="summary-val" style="color:var(--accent-light)">${totalProjectDays}</div><div class="summary-label">Total Hari Target</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">Total semua target pekerjaan</div></div>
+    <div class="summary-card anim-in anim-d4"><div class="summary-val" style="color:var(--danger)">${offDaysCount}</div><div class="summary-label">Hari Off</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px">${offDaysLabel||'Tidak ada'}</div></div>`;
+}
+
+// ======================== RENDER: TABEL ========================
+function renderTable(){
+  document.getElementById('header-title').textContent=state.projectName;
+  document.getElementById('period-text').textContent=fmtDateFull(state.startDate)+' — '+fmtDateFull(getDayDate(state.totalDays-1))+' ('+state.totalDays+' hari)';
+  document.getElementById('scroll-active-btn').style.display=findFirstUncheckedDay()>=0?'inline-flex':'none';
+  renderSummary();
+
+  const isReadOnly = !currentUser;
+  // Pastikan dailyNotes objek ada (untuk backward compatibility)
+  if(!state.dailyNotes) state.dailyNotes = {};
+
+  const tc=2+state.totalDays+1;
+  let h='<table class="progress-table"><thead><tr>';
+  h+='<th class="col-no">No</th>';
+  h+='<th class="col-name" style="text-align:left">Pekerjaan</th>';
+  for(let d=0;d<state.totalDays;d++){
+    const ds=getDayDate(d);
+    const offDay=isOffDayByDateStr(ds);
+    const offInfo=offDay?isCustomOffDate(ds):null;
+    const offTitle=offDay?(offInfo?offInfo.note:'Hari Off'):'';
+    h+='<th class="day-header '+(isReadOnly?'read-only':'')+' '+(offDay?'off-day-header':'')+'" title="'+(offTitle?offTitle:fmtDateFull(ds))+'" onclick="'+(!isReadOnly?'toggleAllDay('+d+')':'')+'">'+fmtDate(ds)+'</th>';
+  }
+  h+='<th class="col-progress">Progress</th></tr></thead><tbody>';
+
+  let gi=0;
+  state.areas.forEach((area)=>{
+    gi++;
+    h+='<tr class="area-row"><td colspan="'+tc+'" style="position:static"><div class="area-header-wrap"><div class="area-main-info"><span>'+gi+'. '+escHtml(area.name)+'</span><span class="area-desc">'+escHtml(area.description)+'</span></div><div class="area-actions">'+(!isReadOnly?'<button class="btn-icon" title="Edit Area" onclick="openAreaModal(\''+area.id+'\')"><i class="fas fa-pen" style="font-size:11px"></i></button><button class="btn-icon" title="Tambah Sub" onclick="openSubModal(\''+area.id+'\')"><i class="fas fa-plus" style="font-size:11px"></i></button><button class="btn-icon" title="Hapus Area" onclick="deleteArea(\''+area.id+'\')" style="color:var(--danger)"><i class="fas fa-trash" style="font-size:11px"></i></button>':'')+'</div></div></td></tr>';
+
+    if(!area.subItems.length){
+      h+='<tr><td colspan="'+tc+'" style="text-align:center;color:var(--text-muted);font-size:13px;padding:16px;position:static;background:var(--card)">'+(isReadOnly?'Belum ada sub-pekerjaan.':'Belum ada sub-pekerjaan. <a href="#" onclick="openSubModal(\''+area.id+'\');return false" style="color:var(--accent);text-decoration:underline">Tambahkan</a>')+'</td></tr>';
+    } else {
+      area.subItems.forEach((sub,si)=>{
+        const p=calcSubProgress(sub),ic=p>=100;
+        const td=getTargetDays(sub);
+        h+='<tr class="sub-row"><td class="col-no">'+gi+'.'+(si+1)+'</td>';
+        h+='<td class="col-name"><div class="sub-name-text">'+escHtml(sub.name)+'</div><div class="sub-name-actions"><span style="font-size:10px;color:var(--text-muted);margin-right:4px" title="Target '+td+' hari"><i class="fas fa-clock"></i> '+td+'d</span>'+(!isReadOnly?'<button class="btn-icon" style="padding:2px 5px" title="Edit" onclick="openSubModal(\''+area.id+'\',\''+sub.id+'\')"><i class="fas fa-pen" style="font-size:9px"></i></button><button class="btn-icon" style="padding:2px 5px;color:var(--danger)" title="Hapus" onclick="deleteSub(\''+area.id+'\',\''+sub.id+'\')"><i class="fas fa-times" style="font-size:9px"></i></button>':'')+'</div></td>';
+        
+        for(let d=0;d<state.totalDays;d++){
+          const ds=getDayDate(d);
+          const ck=sub.checkedDays.includes(d);
+          const noteKey = sub.id + '_' + d;
+          const hasNote = state.dailyNotes[noteKey];
+          const offDay=isOffDayByDateStr(ds);
+          const offInfo=offDay?isCustomOffDate(ds):null;
+          
+          h+='<td class="day-cell'+(isReadOnly?' read-only':'')+' '+(offDay?'off-cell':'')+'" onclick="'+(!isReadOnly&&!offDay?'toggleCheck(\''+area.id+'\',\''+sub.id+'\','+d+')':'')+'">';
+          h+='<div class="day-check '+(ck?'checked':'')+'">'+(ck?'<i class="fas fa-check"></i>':'')+'</div>';
+          if(offDay){
+            h+='<i class="fas fa-minus off-day-icon" title="'+(offInfo?escHtml(offInfo.note):'Hari Off')+'" style="position:absolute;top:2px;right:2px;font-size:8px;color:var(--text-muted)"></i>';
+          }else{
+            h+='<i class="fas fa-sticky-note note-icon '+(hasNote?'active':'')+'" onclick="openNotePopup(event, \''+sub.id+'\','+d+')" title="Catatan"></i>';
+          }
+          h+='</td>';
+        }
+        h+='<td class="col-progress"><div class="pbar-wrap"><div class="pbar-fill '+(ic?'complete':'')+'" style="width:'+p+'%"></div></div><div class="pbar-text" style="color:'+(ic?'var(--success)':'var(--accent-light)')+'">'+p+'%</div></td></tr>';
+      });
+    }
+
+    const ap=calcAreaProgress(area),ac=ap>=100;
+    const areaTotalDays=calcAreaTotalDays(area);
+    h+='<tr class="area-summary"><td colspan="'+(tc-1)+'" style="position:static;white-space:normal;overflow-wrap:break-word">Progress Area: '+escHtml(area.name)+' <span style="color:var(--text-muted)">('+areaTotalDays+' hari target)</span></td><td class="col-progress"><div class="pbar-wrap"><div class="pbar-fill '+(ac?'complete':'')+'" style="width:'+ap+'%"></div></div><div class="pbar-text" style="color:'+(ac?'var(--success)':'var(--accent-light)')+'">'+ap+'%</div></td></tr>';
+  });
+
+  h+='</tbody></table>';
+  document.getElementById('table-container').innerHTML=h;
+
+  requestAnimationFrame(syncTopSpacerWidth);
+}
+
+// ======================== TOGGLE CHECKLIST ========================
+function toggleCheck(aid,sid,di){
+  if(!currentUser) { toast('Akses ditolak. Harap Login.', 'error'); return; }
+  const area=state.areas.find(a=>a.id===aid);if(!area)return;
+  const sub=area.subItems.find(s=>s.id===sid);if(!sub)return;
+  const idx=sub.checkedDays.indexOf(di);
+  if(idx>=0)sub.checkedDays.splice(idx,1);else sub.checkedDays.push(di);
+  sub.checkedDays.sort((a,b)=>a-b);
+  saveState(); 
+  renderTable();
+}
+function toggleAllDay(di){
+  if(!currentUser) { toast('Akses ditolak. Harap Login.', 'error'); return; }
+  const ds=getDayDate(di);
+  if(isOffDayByDateStr(ds)){toast('Hari ini adalah hari off','info');return;}
+  let all=true;
+  state.areas.forEach(a=>a.subItems.forEach(s=>{if(!s.checkedDays.includes(di))all=false}));
+  state.areas.forEach(a=>a.subItems.forEach(s=>{
+    const idx=s.checkedDays.indexOf(di);
+    if(all){if(idx>=0)s.checkedDays.splice(idx,1)}else{if(idx<0)s.checkedDays.push(di)}
+    s.checkedDays.sort((a,b)=>a-b);
+  }));
+  saveState(); 
+  renderTable();
+  toast(all?'Semua checklist hari '+fmtDate(getDayDate(di))+' dibatalkan':'Semua checklist hari '+fmtDate(getDayDate(di))+' dicentang','info');
+}
+
+// ======================== MODAL: OFF DAYS (DEDICATED) ========================
+function openOffDaysModal(){
+  if(!currentUser) { toast('Akses ditolak. Harap Login.', 'error'); return; }
+  const wo=state.weeklyOff||{enabled:false,days:[]};
+  let dayBtns='';
+  for(let i=0;i<7;i++){
+    const sel=wo.days.includes(i);
+    dayBtns+=`<button class="btn btn-sm ${sel?'btn-primary':'btn-secondary'}" onclick="toggleWeeklyOffDayUI(this,${i})" style="min-width:52px">${HARI_SHORT[i]}</button>`;
+  }
+  const endDate=getDayDate(state.totalDays-1);
+  let customOffList='';
+  if(state.customOffDates&&state.customOffDates.length){
+    state.customOffDates.forEach(o=>{
+      customOffList+=`<div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--surface);border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:13px;color:var(--accent-light)">${fmtDateFull(o.date)}</div>
+          ${o.note?`<div style="font-size:12px;color:var(--text-muted);margin-top:2px"><i class="fas fa-sticky-note" style="margin-right:4px"></i>${escHtml(o.note)}</div>`:''}
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="removeCustomOffDateUI('${o.date}')"><i class="fas fa-trash"></i> Hapus</button>
+      </div>`;
+    });
+  }else{
+    customOffList=`<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:24px;background:var(--surface);border-radius:8px;border:1px dashed var(--border)"><i class="fas fa-calendar" style="font-size:24px;margin-bottom:8px;display:block;opacity:0.5"></i>Belum ada tanggal off khusus.<br><span style="font-size:11px">Tambahkan di bawah untuk menandai hari libur khusus.</span></div>`;
+  }
+  showModal(`<div style="text-align:center;margin-bottom:20px">
+    <h2 style="font-size:18px;font-weight:800;margin:0 0 8px 0;color:var(--accent-light)"><i class="fas fa-calendar-minus" style="margin-right:8px"></i>Pengaturan Hari Off</h2>
+    <p style="font-size:13px;color:var(--text-muted)">Kelola hari-hari yang tidak masuk kerja.</p>
+  </div>
+  <div style="background:var(--surface);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid var(--border)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-weight:700;font-size:14px;color:var(--text)"><i class="fas fa-redo" style="color:var(--accent);margin-right:6px"></i>Off Rutin Mingguan</div>
+        <div style="font-size:11px;color:var(--text-muted)">Pilih hari-hari yang berulang setiap minggu</div>
+      </div>
+      <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer">
+        <input type="checkbox" id="weekly-off-toggle" ${wo.enabled?'checked':''} onchange="toggleWeeklyOffUI(this.checked)" style="opacity:0;width:0;height:0">
+        <span style="position:absolute;cursor:pointer;inset:0;background:${wo.enabled?'var(--accent)':'var(--border)'};border-radius:13px;transition:all .2s"></span>
+        <span style="position:absolute;content:'';width:20px;height:20px;left:${wo.enabled?'26px':'4px'};top:3px;background:#fff;border-radius:50%;transition:all .2s"></span>
+      </label>
+    </div>
+    <div id="weekly-off-days" style="display:flex;gap:6px;flex-wrap:wrap;opacity:${wo.enabled?'1':'0.4'};pointer-events:${wo.enabled?'auto':'none'}">
+      ${dayBtns}
+    </div>
+    ${wo.enabled&&wo.days.length?`<div style="margin-top:10px;font-size:11px;color:var(--accent-light)"><i class="fas fa-info-circle"></i> Hari off rutin aktif: ${wo.days.map(d=>HARI_NAMA[d]).join(', ')}</div>`:''}
+  </div>
+  <div style="background:var(--surface);border-radius:12px;padding:16px;border:1px solid var(--border)">
+    <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:14px"><i class="fas fa-calendar-alt" style="color:var(--danger);margin-right:6px"></i>Off Kustom / Manual</div>
+    <div style="background:var(--card-alt);border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--border)">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px"><i class="fas fa-plus-circle" style="color:var(--success);margin-right:4px"></i>Tanggal Tunggal</div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:10px">
+        <div>
+          <label class="inp-label">Tanggal Off</label>
+          <input type="date" class="inp" id="custom-off-date" min="${state.startDate}" max="${endDate}">
+        </div>
+        <div>
+          <label class="inp-label">Catatan (opsional)</label>
+          <input type="text" class="inp" id="custom-off-note" placeholder="cth: Libur nasional">
+        </div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="addCustomOffDateUI()"><i class="fas fa-plus"></i> Tambah Tanggal</button>
+    </div>
+    <div style="background:var(--card-alt);border-radius:8px;padding:12px;border:1px solid var(--border)">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:10px"><i class="fas fa-layer-group" style="color:var(--accent);margin-right:4px"></i>Rentang Tanggal (Periode)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px;margin-bottom:10px">
+        <div>
+          <label class="inp-label">Tanggal Awal</label>
+          <input type="date" class="inp" id="custom-off-start" min="${state.startDate}" max="${endDate}">
+        </div>
+        <div>
+          <label class="inp-label">Tanggal Akhir</label>
+          <input type="date" class="inp" id="custom-off-end" min="${state.startDate}" max="${endDate}">
+        </div>
+        <div>
+          <label class="inp-label">Catatan (opsional)</label>
+          <input type="text" class="inp" id="custom-off-range-note" placeholder="cth: Cuti tahunan">
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="addCustomOffRangeUI()" style="background:var(--accent);color:#fff"><i class="fas fa-plus"></i> Tambah Rentang Tanggal</button>
+    </div>
+    <div id="custom-off-list">${customOffList}</div>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px"><button class="btn btn-secondary" onclick="hideModal()">Tutup</button><button class="btn btn-primary" onclick="saveOffDays()">Simpan</button></div>`);
+}
+function saveOffDays(){
+  if(!state.weeklyOff)state.weeklyOff={enabled:false,days:[]};
+  if(!state.customOffDates)state.customOffDates=[];
+  saveState();hideModal();renderTable();
+  let msg='Pengaturan hari off disimpan';
+  const offCount=state.areas.reduce((s,a)=>s+a.subItems.length,0);
+  let activeOff=0;
+  for(let d=0;d<state.totalDays;d++)if(isOffDayByDateStr(getDayDate(d)))activeOff++;
+  if(activeOff>0)msg+=` (${activeOff} hari off aktif di timeline)`;
+  toast(msg,'success');
+}
+function openSettingsModal(){
+  if(!currentUser) { toast('Akses ditolak. Harap Login.', 'error'); return; }
+  showModal(`<h2 style="font-size:18px;font-weight:800;margin:0 0 20px 0;color:var(--accent-light)"><i class="fas fa-cog" style="margin-right:8px"></i>Pengaturan Project</h2>
+    <div style="margin-bottom:16px"><label class="inp-label">Nama Project</label><input class="inp" id="set-name" value="${escAttr(state.projectName)}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+      <div><label class="inp-label">Tanggal Mulai</label><input type="date" class="inp" id="set-start" value="${state.startDate}"></div>
+      <div><label class="inp-label">Total Hari Kerja</label><input type="number" class="inp" id="set-days" value="${state.totalDays}" min="1" max="365"></div>
+    </div>
+    <div style="background:var(--surface);border-radius:8px;padding:12px;border:1px solid var(--border);margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text-muted)"><i class="fas fa-info-circle" style="margin-right:4px"></i>Pengaturan hari off tersedia di tombol <strong style="color:var(--accent-light)">Off</strong> di header.</div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="hideModal()">Batal</button><button class="btn btn-primary" onclick="saveSettings()">Simpan</button></div>`);
+}
+function toggleWeeklyOffUI(enabled){
+  state.weeklyOff=state.weeklyOff||{days:[]};
+  state.weeklyOff.enabled=enabled;
+  document.getElementById('weekly-off-days').style.opacity=enabled?'1':'0.4';
+  document.getElementById('weekly-off-days').style.pointerEvents=enabled?'auto':'none';
+}
+function toggleWeeklyOffDayUI(btn,dayIndex){
+  toggleWeeklyOffDay(dayIndex);
+  const isOn=state.weeklyOff.days.includes(dayIndex);
+  btn.className='btn btn-sm '+(isOn?'btn-primary':'btn-secondary');
+}
+function addCustomOffDateUI(){
+  const dateInput=document.getElementById('custom-off-date');
+  const noteInput=document.getElementById('custom-off-note');
+  const ds=dateInput.value;
+  if(!ds){toast('Pilih tanggal terlebih dahulu','error');return;}
+  if(isOffDayByDateStr(ds)){toast('Tanggal ini sudah ditandai off','error');return;}
+  addCustomOffDate(ds,noteInput.value.trim());
+  dateInput.value='';
+  noteInput.value='';
+  refreshCustomOffList();
+  toast('Tanggal off berhasil ditambahkan','success');
+}
+function addCustomOffRangeUI(){
+  const startInput=document.getElementById('custom-off-start');
+  const endInput=document.getElementById('custom-off-end');
+  const noteInput=document.getElementById('custom-off-range-note');
+  const startDate=startInput.value;
+  const endDate=endInput.value;
+  if(!startDate){toast('Pilih tanggal awal','error');return;}
+  if(!endDate){toast('Pilih tanggal akhir','error');return;}
+  if(startDate>endDate){toast('Tanggal awal harus sebelum tanggal akhir','error');return;}
+  const note=noteInput.value.trim();
+  let added=0;
+  const current=new Date(startDate+'T00:00:00');
+  const end=new Date(endDate+'T00:00:00');
+  while(current<=end){
+    const ds=current.toISOString().split('T')[0];
+    if(!isOffDayByDateStr(ds)){
+      addCustomOffDate(ds,note);
+      added++;
+    }
+    current.setDate(current.getDate()+1);
+  }
+  startInput.value='';
+  endInput.value='';
+  noteInput.value='';
+  refreshCustomOffList();
+  if(added>0)toast(`${added} tanggal off berhasil ditambahkan`,'success');
+}
+function removeCustomOffDateUI(ds){
+  removeCustomOffDate(ds);
+  refreshCustomOffList();
+}
+function refreshCustomOffList(){
+  const list=document.getElementById('custom-off-list');
+  if(state.customOffDates&&state.customOffDates.length){
+    list.innerHTML=state.customOffDates.map(o=>`<div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--surface);border-radius:8px;margin-bottom:8px;border:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:13px;color:var(--danger)">${fmtDateFull(o.date)}</div>
+        ${o.note?`<div style="font-size:12px;color:var(--text-muted);margin-top:2px"><i class="fas fa-sticky-note" style="margin-right:4px"></i>${escHtml(o.note)}</div>`:''}
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="removeCustomOffDateUI('${o.date}')"><i class="fas fa-trash"></i></button>
+    </div>`).join('');
+  }else{
+    list.innerHTML=`<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:24px;background:var(--card-alt);border-radius:8px;border:1px dashed var(--border)"><i class="fas fa-calendar" style="font-size:24px;margin-bottom:8px;display:block;opacity:0.5"></i>Belum ada tanggal off khusus.<br><span style="font-size:11px">Tambahkan di atas untuk menandai hari libur.</span></div>`;
+  }
+}
+function saveSettings(){
+  if(!currentUser) return;
+  const name=document.getElementById('set-name').value.trim();
+  const start=document.getElementById('set-start').value;
+  const days=parseInt(document.getElementById('set-days').value)||30;
+  if(!name){toast('Nama project wajib diisi','error');return}
+  if(!start){toast('Tanggal mulai wajib diisi','error');return}
+  if(days<1||days>365){toast('Total hari harus 1-365','error');return}
+  if(days!==state.totalDays)state.areas.forEach(a=>a.subItems.forEach(s=>{s.checkedDays=s.checkedDays.filter(d=>d<days)}));
+  state.projectName=name;state.startDate=start;state.totalDays=days;
+  if(!state.weeklyOff)state.weeklyOff={enabled:false,days:[]};
+  if(!state.customOffDates)state.customOffDates=[];
+  saveState(); 
+  hideModal();renderTable();setTimeout(scrollToFirstUnchecked,200);
+  toast('Pengaturan berhasil disimpan','success');
+}
+
+// ======================== MODAL: AREA ========================
+function openAreaModal(aid){
+  if(!currentUser) { toast('Akses ditolak. Harap Login.', 'error'); return; }
+  const isEdit=!!aid;const area=isEdit?state.areas.find(a=>a.id===aid):null;
+  let sh='';
+  if(area&&area.subItems.length)area.subItems.forEach((sub,i)=>{sh+=`<div class="sub-input-row"><span class="sub-num">${i+1}.</span><input class="inp sub-name-input" value="${escAttr(sub.name)}" data-sub-id="${sub.id}" data-target-days="${sub.targetDays||1}"><input type="number" class="inp sub-target-input" value="${sub.targetDays||1}" min="1" max="365" style="width:70px;text-align:center" data-sub-id="${sub.id}" title="Target hari"><button class="btn-icon" style="color:var(--danger)" onclick="this.closest('.sub-input-row').remove();renumberSubInputs()"><i class="fas fa-times"></i></button></div>`});
+  showModal(`<h2 style="font-size:18px;font-weight:800;margin:0 0 20px 0;color:var(--accent-light)"><i class="fas ${isEdit?'fa-pen':'fa-plus'}" style="margin-right:8px"></i>${isEdit?'Edit':'Tambah'} Area Pekerjaan</h2>
+    <div style="margin-bottom:14px"><label class="inp-label">Nama Area</label><input class="inp" id="area-name" value="${escAttr(area?area.name:'')}" placeholder="contoh: DAPUR"></div>
+    <div style="margin-bottom:18px"><label class="inp-label">Deskripsi / Keterangan</label><input class="inp" id="area-desc" value="${escAttr(area?area.description:'')}" placeholder="contoh: Biaya ganti meja dapur"></div>
+    <div style="margin-bottom:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><label class="inp-label" style="margin:0">Sub-Pekerjaan</label><button class="btn btn-secondary btn-sm" onclick="addSubInputRow()"><i class="fas fa-plus"></i> Tambah Baris</button></div><div id="sub-inputs-list" style="max-height:240px;overflow-y:auto;padding-right:4px">${sh}</div></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="hideModal()">Batal</button><button class="btn btn-primary" onclick="saveArea('${aid||''}')">${isEdit?'Update':'Simpan'}</button></div>`);
+}
+function addSubInputRow(v){
+  const list=document.getElementById('sub-inputs-list');const div=document.createElement('div');div.className='sub-input-row';
+  div.innerHTML=`<span class="sub-num"></span><input class="inp sub-name-input" value="${escAttr(v||'')}" placeholder="Nama sub-pekerjaan"><input type="number" class="inp sub-target-input" value="1" min="1" max="365" style="width:70px;text-align:center" title="Target hari"><button class="btn-icon" style="color:var(--danger)" onclick="this.closest('.sub-input-row').remove();renumberSubInputs()"><i class="fas fa-times"></i></button>`;
+  list.appendChild(div);renumberSubInputs();div.querySelector('input').focus();
+}
+function renumberSubInputs(){document.querySelectorAll('#sub-inputs-list .sub-input-row').forEach((r,i)=>{r.querySelector('.sub-num').textContent=(i+1)+'.'})}
+function saveArea(aid){
+  if(!currentUser) return;
+  const name=document.getElementById('area-name').value.trim();const desc=document.getElementById('area-desc').value.trim();
+  if(!name){toast('Nama area wajib diisi','error');return}
+  const inputs=document.querySelectorAll('#sub-inputs-list .sub-name-input');const subs=[];
+  inputs.forEach(inp=>{const v=inp.value.trim();if(v){subs.push({id:inp.dataset.subId||genId(),name:v,checkedDays:[],targetDays:parseInt(inp.dataset.targetDays)||1})}});
+  if(aid){const area=state.areas.find(a=>a.id===aid);if(area){area.name=name;area.description=desc;area.subItems=subs.map(ns=>{const ex=area.subItems.find(es=>es.id===ns.id);return{id:ns.id,name:ns.name,checkedDays:ex?ex.checkedDays:[],targetDays:ns.targetDays}})}}
+  else{state.areas.push({id:genId(),name,description:desc,subItems:subs})}
+  saveState(); 
+  hideModal();renderTable();toast(aid?'Area berhasil diperbarui':'Area berhasil ditambahkan','success');
+}
+
+// ======================== MODAL: SUB ========================
+function openSubModal(aid,sid){
+  if(!currentUser) { toast('Akses ditolak. Harap Login.', 'error'); return; }
+  const area=state.areas.find(a=>a.id===aid);if(!area)return;
+  const isEdit=!!sid;const sub=isEdit?area.subItems.find(s=>s.id===sid):null;
+  showModal(`<h2 style="font-size:18px;font-weight:800;margin:0 0 20px 0;color:var(--accent-light)"><i class="fas ${isEdit?'fa-pen':'fa-plus'}" style="margin-right:8px"></i>${isEdit?'Edit':'Tambah'} Sub-Pekerjaan</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Area: <strong style="color:var(--text)">${escHtml(area.name)}</strong></p>
+    <div style="margin-bottom:16px"><label class="inp-label">Nama Sub-Pekerjaan</label><input class="inp" id="sub-name" value="${escHtml(sub?sub.name:'')}" placeholder="contoh: Ganti zink"></div>
+    <div style="margin-bottom:20px"><label class="inp-label">Target Pengerjaan (Hari)</label><input type="number" class="inp" id="sub-target-days" value="${sub?sub.targetDays||1:1}" min="1" max="365" style="width:120px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="hideModal()">Batal</button><button class="btn btn-primary" onclick="saveSub('${aid}','${sid||''}')">${isEdit?'Update':'Simpan'}</button></div>`);
+}
+function saveSub(aid,sid){
+  if(!currentUser) return;
+  const name=document.getElementById('sub-name').value.trim();if(!name){toast('Nama sub-pekerjaan wajib diisi','error');return}
+  const targetDays=parseInt(document.getElementById('sub-target-days').value)||1;
+  const area=state.areas.find(a=>a.id===aid);if(!area)return;
+  if(sid){const sub=area.subItems.find(s=>s.id===sid);if(sub){sub.name=name;sub.targetDays=targetDays}}
+  else{area.subItems.push({id:genId(),name,checkedDays:[],targetDays:targetDays})}
+  saveState(); 
+  hideModal();renderTable();toast(sid?'Sub-pekerjaan diperbarui':'Sub-pekerjaan ditambahkan','success');
+}
+
+// ======================== HAPUS ========================
+function deleteArea(aid){if(!currentUser){toast('Akses ditolak. Harap Login.', 'error');return;} const area=state.areas.find(a=>a.id===aid);if(!area)return;showModal(`<h2 style="font-size:18px;font-weight:800;margin:0 0 12px 0;color:var(--danger)"><i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Hapus Area</h2><p style="font-size:14px;color:var(--text-muted);margin-bottom:20px">Yakin menghapus area <strong style="color:var(--text)">"${escHtml(area.name)}"</strong>?</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="hideModal()">Batal</button><button class="btn btn-danger" onclick="confirmDeleteArea('${aid}')">Hapus</button></div>`)}
+function confirmDeleteArea(aid){state.areas=state.areas.filter(a=>a.id!==aid);saveState();hideModal();renderTable();toast('Area berhasil dihapus','success')}
+function deleteSub(aid,sid){if(!currentUser){toast('Akses ditolak. Harap Login.', 'error');return;} const area=state.areas.find(a=>a.id===aid);if(!area)return;area.subItems=area.subItems.filter(s=>s.id!==sid);saveState();renderTable();toast('Sub-pekerjaan dihapus','success')}
+
+// ======================== RESET ========================
+function confirmReset(){if(!currentUser){toast('Akses ditolak. Harap Login.', 'error');return;} showModal(`<h2 style="font-size:18px;font-weight:800;margin:0 0 12px 0;color:var(--danger)"><i class="fas fa-exclamation-triangle" style="margin-right:8px"></i>Reset Semua Data</h2><p style="font-size:14px;color:var(--text-muted);margin-bottom:20px">Semua data akan dikembalikan ke default.</p><div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-secondary" onclick="hideModal()">Batal</button><button class="btn btn-danger" onclick="doReset()">Reset</button></div>`)}
+function doReset(){localStorage.removeItem(STORAGE_KEY);state=getDefaultState();saveState();hideModal();renderTable();setTimeout(scrollToFirstUnchecked,200);toast('Data berhasil direset','success')}
+
+// ======================== EXPORT / IMPORT JSON ========================
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='progress-renovasi-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup JSON berhasil diunduh','success');
+}
+function importJSON(){if(!currentUser){toast('Akses ditolak. Harap Login.', 'error');return;} document.getElementById('import-file').click()}
+function handleImport(e){
+  if(!currentUser) return;
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.projectName||!data.areas||!Array.isArray(data.areas)){toast('Format file tidak valid','error');return}
+      state=data;
+      if(!state.dailyNotes) state.dailyNotes = {};
+      state.areas.forEach(a=>a.subItems.forEach(s=>{if(typeof s.targetDays==='undefined')s.targetDays=1}));
+      saveState(); 
+      renderTable();
+      setTimeout(scrollToFirstUnchecked,200);
+      toast('Data berhasil diimpor & tersimpan','success');
+    }catch(err){toast('Gagal membaca file: '+err.message,'error')}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+// ======================== GRAFIK ========================
+let chartAB=null,chartOD=null,chartDL=null,chartSB=null;
+const ACOL=['#d4841c','#22c55e','#3b82f6','#a855f7','#ef4444','#06b6d4','#eab308','#ec4899','#14b8a6','#f97316'];
+function ct(){const l=document.documentElement.getAttribute('data-theme')==='light';return{grid:l?'rgba(0,0,0,.07)':'rgba(255,255,255,.06)',tick:l?'#78756c':'#7a829a',text:l?'#1c1a16':'#e4e6ec',accent:l?'#b06e0a':'#f0a040',success:l?'#15803d':'#22c55e'}}
+function populateChartFilters(){const s=document.getElementById('chart-filter-area');s.innerHTML='<option value="all">Semua Area</option>';state.areas.forEach(a=>{s.innerHTML+='<option value="'+a.id+'">'+escHtml(a.name)+'</option>'});document.getElementById('chart-date-from').value=state.startDate;document.getElementById('chart-date-to').value=getDayDate(state.totalDays-1)}
+function getFilteredAreas(){const f=document.getElementById('chart-filter-area').value;return f==='all'?state.areas:state.areas.filter(a=>a.id===f)}
+
+function renderCharts(){
+  const areas=getFilteredAreas();const from=document.getElementById('chart-date-from').value;const to=document.getElementById('chart-date-to').value;const c=ct();
+
+  // 1. Bar per area
+  const x1=document.getElementById('chart-area-bar').getContext('2d');
+  if(chartAB)chartAB.destroy();
+  chartAB=new Chart(x1,{type:'bar',data:{labels:areas.map(a=>a.name),datasets:[{label:'Progress (%)',data:areas.map(a=>calcAreaProgress(a)),backgroundColor:areas.map((_,i)=>ACOL[i%ACOL.length]+'cc'),borderColor:areas.map((_,i)=>ACOL[i%ACOL.length]),borderWidth:2,borderRadius:6,barThickness:36}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.parsed.x+'%'}}},scales:{x:{min:0,max:100,grid:{color:c.grid},ticks:{color:c.tick,callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:c.text,font:{weight:'bold',size:12}}}}}});
+  document.getElementById('chart-area-bar').parentElement.style.height=Math.max(200,areas.length*50+60)+'px';
+
+  // 2. Donut
+  const fw=areas.filter(a=>a.subItems.length>0);const ov=fw.length?Math.round(fw.reduce((s,a)=>s+calcAreaProgress(a),0)/fw.length):0;
+  const x2=document.getElementById('chart-overall-donut').getContext('2d');
+  if(chartOD)chartOD.destroy();
+  chartOD=new Chart(x2,{type:'doughnut',data:{labels:['Selesai','Belum'],datasets:[{data:[ov,100-ov],backgroundColor:[ov>=100?c.success:c.accent,'rgba(128,128,128,.1)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.label+': '+x.parsed+'%'}}}},plugins:[{id:'cT',afterDraw(chart){const{ctx,chartArea:{width,height,top,left}}=chart;ctx.save();ctx.fillStyle=ov>=100?c.success:c.accent;ctx.font='900 36px Plus Jakarta Sans';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(ov+'%',left+width/2,top+height/2-6);ctx.fillStyle=c.tick;ctx.font='600 12px Plus Jakarta Sans';ctx.fillText('PROGRESS',left+width/2,top+height/2+20);ctx.restore()}}]});
+  document.getElementById('chart-overall-donut').parentElement.style.height='280px';
+
+  // 3. Line kumulatif
+  const x3=document.getElementById('chart-daily-line').getContext('2d');
+  if(chartDL)chartDL.destroy();
+  const lb=[],dt=[];
+  for(let d=0;d<state.totalDays;d++){const ds=getDayDate(d);if(from&&ds<from)continue;if(to&&ds>to)continue;lb.push(fmtDate(ds));let cc=0;for(let dd=0;dd<=d;dd++)areas.forEach(a=>a.subItems.forEach(s=>{if(s.checkedDays.includes(dd))cc++}));const ct2=areas.reduce((s,a)=>s+a.subItems.length,0)*(d+1);dt.push(ct2>0?Math.round((cc/ct2)*100):0)}
+  chartDL=new Chart(x3,{type:'line',data:{labels:lb,datasets:[{label:'Progress Kumulatif (%)',data:dt,borderColor:c.accent,backgroundColor:c.accent+'18',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:c.accent,pointBorderColor:'#fff',pointBorderWidth:1,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.parsed.y+'%'}}},scales:{x:{grid:{color:c.grid},ticks:{color:c.tick,maxRotation:45,font:{size:10}}},y:{min:0,max:100,grid:{color:c.grid},ticks:{color:c.tick,callback:v=>v+'%'}}}}});
+  document.getElementById('chart-daily-line').parentElement.style.height='300px';
+
+  // 4. Detail sub
+  const f=document.getElementById('chart-filter-area').value;const ds=document.getElementById('chart-detail-section');
+  if(f!=='all'&&areas[0]){ds.style.display='';const area=areas[0];const x4=document.getElementById('chart-sub-bar').getContext('2d');
+    if(chartSB)chartSB.destroy();
+    chartSB=new Chart(x4,{type:'bar',data:{labels:area.subItems.map(s=>s.name.length>40?s.name.slice(0,40)+'...':s.name),datasets:[{label:'Progress (%)',data:area.subItems.map(s=>calcSubProgress(s)),backgroundColor:area.subItems.map(s=>calcSubProgress(s)>=100?c.success+'cc':c.accent+'cc'),borderColor:area.subItems.map(s=>calcSubProgress(s)>=100?c.success:c.accent),borderWidth:2,borderRadius:4,barThickness:22}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>x.parsed.x+'%'}}},scales:{x:{min:0,max:100,grid:{color:c.grid},ticks:{color:c.tick,callback:v=>v+'%'}},y:{grid:{display:false},ticks:{color:c.text,font:{size:11}}}}}});
+    ds.style.height=Math.max(200,area.subItems.length*36+60)+'px';
+  }else{ds.style.display='none'}
+
+  renderRecapTable(areas);
+}
+
+function renderRecapTable(areas){
+  let h='<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="padding:10px 14px;text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:11px;text-transform:uppercase">No</th><th style="padding:10px 14px;text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:11px;text-transform:uppercase">Area Pekerjaan</th><th style="padding:10px 14px;text-align:center;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:11px;text-transform:uppercase">Jml Sub</th><th style="padding:10px 14px;text-align:center;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:11px;text-transform:uppercase">Selesai</th><th style="padding:10px 14px;text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:11px;text-transform:uppercase;min-width:200px">Progress</th></tr></thead><tbody>';
+  let ts=0,td2=0;
+  areas.forEach((a,i)=>{const done=a.subItems.filter(s=>calcSubProgress(s)>=100).length;const p=calcAreaProgress(a);ts+=a.subItems.length;td2+=done;
+    h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:10px 14px;font-weight:600;color:var(--text-muted)">'+(i+1)+'</td><td style="padding:10px 14px;font-weight:600">'+escHtml(a.name)+'</td><td style="padding:10px 14px;text-align:center">'+a.subItems.length+'</td><td style="padding:10px 14px;text-align:center;color:'+(done===a.subItems.length&&a.subItems.length>0?'var(--success)':'var(--text)')+';font-weight:700">'+done+'</td><td style="padding:10px 14px"><div style="display:flex;align-items:center;gap:10px"><div class="pbar-wrap" style="flex:1"><div class="pbar-fill '+(p>=100?'complete':'')+'" style="width:'+p+'%"></div></div><span style="font-size:12px;font-weight:700;color:'+(p>=100?'var(--success)':'var(--accent-light)')+';min-width:36px">'+p+'%</span></div></td></tr>'});
+  const aw=areas.filter(a=>a.subItems.length>0);const ovP=aw.length?Math.round(aw.reduce((s,a)=>s+calcAreaProgress(a),0)/aw.length):0;
+  h+='<tr style="background:var(--surface);font-weight:800"><td style="padding:12px 14px" colspan="2">TOTAL</td><td style="padding:12px 14px;text-align:center">'+ts+'</td><td style="padding:12px 14px;text-align:center;color:'+(td2===ts&&ts>0?'var(--success)':'var(--text)')+'">'+td2+'</td><td style="padding:12px 14px"><div style="display:flex;align-items:center;gap:10px"><div class="pbar-wrap" style="flex:1"><div class="pbar-fill '+(ovP>=100?'complete':'')+'" style="width:'+ovP+'%"></div></div><span style="font-size:12px;font-weight:900;color:'+(ovP>=100?'var(--success)':'var(--accent-light)')+';min-width:36px">'+ovP+'%</span></div></td></tr></tbody></table>';
+  document.getElementById('recap-table-wrap').innerHTML=h;
+}
+
+// ======================== INIT ========================
+function init(){
+  initTheme();
+  initUsers();
+  checkAuth();
+  if(!loadState()){state=getDefaultState();saveState()}
+  initScrollSync();
+  
+  // Bind Note Input Event
+  document.getElementById('note-input').addEventListener('input', handleNoteInput);
+  
+  renderTable();
+  setTimeout(scrollToFirstUnchecked,350);
+}
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
