@@ -43,6 +43,7 @@ ACHMAD ABU SOFYAN,0084640520,SERANG,11 April 2008,XII AK 1,LULUS,foto_0084640520
 ```
 sudo touch data/settings.csv
 sudo chmod 0777 data/settings.csv
+sudo nano data/settings.csv
 ```
 ##### Format settings.csv (Akun Login - admin) dan Tanggal Pengumuman
 ```
