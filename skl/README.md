@@ -11,7 +11,7 @@ upload/
 └── skl/
 
 assets/
-└── images/
+└── images/    -->> LOGO disini
 
 data/
 
