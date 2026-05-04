@@ -35,9 +35,10 @@ sudo chmod 0777 data/siswa.csv
 sudo nano data/siswa.csv
 ```
 ##### Format siswa.csv
+pastikan format Foto dan Dokumen SKL dengan format ini
 ```
 name,nisn,birth_place,birth_date,class,status,photo,skl
-ACHMAD ABU SOFYAN,0084640520,SERANG,11 April 2008,XII AK 1,LULUS,foto_0084640520.jpg,skl_0084640520.pdf
+SiFulan,008111120,SERANG,11 April 2001,XII AP 1,LULUS,foto_008111120.jpg,skl_008111120.pdf
 ```
 ### 3. Data Siswa dan Aksesnya
 ```
