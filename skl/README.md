@@ -56,7 +56,8 @@ admin_password,123
 ## Running
 ### 1. Admin
 ```
-http://ip_address/skl/?page=admin_login 
+http://ip_address/skl/?page=admin_login
+Gunakan sesuai setting: admin / 123
 ```
 
 ### 2. Beranda
