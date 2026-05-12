@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Shift Manager Pro - Ringkas & Konsisten</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        :root {
+            --bg-body: #f4f7fc;
+            --bg-surface: #ffffff;
+            --text-primary: #1e2a3e;
+            --text-secondary: #2c3e50;
+            --border: #cfdee9;
+            --accent: #2c6e9e;
+            --accent-hover: #1e4a76;
+            --danger: #c44536;
+            --danger-hover: #9b2e1f;
+            --success: #2a7f49;
+            --success-hover: #1e5a36;
+            --header-bg: #eef2f7;
+            --row-hover: #eef3fa;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --card-border: 1px solid rgba(0,0,0,0.08);
+            --empty-bg: #f0f0f0;
+            --off-bg: #ffaaaa;
+            --shift1-bg: #fff176;
+            --shift2-bg: #64b5f6;
+            --shift3-bg: #a5d6a7;
+            --weekend-color: #d32f2f;
+            --modal-overlay: rgba(0,0,0,0.5);
+            --tab-inactive: #e2e8f0;
+        }
+
+        body.dark {
+            --bg-body: #121826;
+            --bg-surface: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --header-bg: #0f172a;
+            --row-hover: #2d3a4e;
+            --danger: #f87171;
+            --danger-hover: #ef4444;
+            --success: #4ade80;
+            --success-hover: #22c55e;
+            --card-border: 1px solid #334155;
+            --empty-bg: #2d3748;
+            --off-bg: #b33a3a;
+            --shift1-bg: #c9b13b;
+            --shift2-bg: #2c6e9e;
+            --shift3-bg: #2e7d32;
+            --weekend-color: #ff8a80;
+            --modal-overlay: rgba(0,0,0,0.7);
+            --tab-inactive: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            padding: 20px 12px;
+        }
+
+        .container { max-width: 100%; margin: 0 auto; overflow-x: auto; }
+        
+        .header-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent), #4682b4);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .tools {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        button, .btn-like, select {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+        }
+        button:hover { background: var(--accent); color: white; }
+        select:hover { background: var(--accent); color: white; }
+        .week-nav {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            background: var(--bg-surface);
+            padding: 2px 8px;
+            border-radius: 60px;
+            border: 1px solid var(--border);
+        }
+        .range-label {
+            font-weight: 600;
+            margin: 0 6px;
+            min-width: 150px;
+            text-align: center;
+            font-size: 0.75rem;
+        }
+        .dark-toggle, .action-btn { background: var(--bg-surface); font-weight: bold; }
+        .danger-btn { background: var(--danger); color: white; border-color: var(--danger); }
+        .danger-btn:hover { background: var(--danger-hover); }
+
+        /* Tab Navigation */
+        .tab-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active-pane {
+            display: block;
+        }
+
+        /* Card CRUD */
+        .card {
+            background: var(--bg-surface);
+            border-radius: 18px;
+            border: var(--card-border);
+            padding: 10px 14px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .card-header h3 {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border-left: 3px solid var(--accent);
+            padding-left: 8px;
+            margin: 0;
+        }
+        .toggle-card-btn {
+            background: transparent;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+        }
+        .toggle-card-btn:hover { background: var(--border); }
+        .edit-info-btn {
+            background: transparent;
+            border: none;
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+            color: var(--accent);
+            margin-left: 8px;
+        }
+        .edit-info-btn:hover { background: var(--border); }
+        .card-content.hidden { display: none; }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+        }
+        .list-item:last-child { border-bottom: none; }
+        .item-actions button { padding: 2px 6px; font-size: 0.65rem; }
+        .add-btn {
+            margin-top: 8px;
+            width: 100%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 5px;
+            font-size: 0.75rem;
+            border-radius: 40px;
+        }
+
+        /* Tabel - lebar kolom lebih ramping */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            margin-bottom: 18px;
+        }
+        .shift-board {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            min-width: 700px;
+        }
+        .shift-board th, .shift-board td {
+            border: 1px solid var(--border);
+            padding: 8px 4px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .shift-board th {
+            background: var(--header-bg);
+            font-weight: 600;
+        }
+        .shift-board th.th-weekend {
+            font-weight: bold;
+            color: var(--weekend-color);
+        }
+        .person-name {
+            font-weight: 600;
+            background-color: var(--bg-surface);
+            position: sticky;
+            left: 0;
+            white-space: nowrap;
+        }
+        td.cell-empty { background-color: var(--empty-bg); }
+        td.cell-off { background-color: var(--off-bg); }
+        td.cell-shift1 { background-color: var(--shift1-bg); }
+        td.cell-shift2 { background-color: var(--shift2-bg); }
+        td.cell-shift3 { background-color: var(--shift3-bg); }
+        select.shift-select-slot-a {
+            background: var(--bg-body);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 3px 6px;
+            font-size: 0.65rem;
+            cursor: pointer;
+            width: 85px;
+            text-align: center;
+        }
+        select.shift-select-slot-b {
+            background: var(--bg-body);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 3px 4px;
+            font-size: 0.65rem;
+            cursor: pointer;
+            width: 60px;
+            text-align: center;
+        }
+
+        /* Rekap & Total */
+        .recap-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .rekap-list { max-height: 200px; overflow-y: auto; margin-bottom: 4px; }
+        .stat-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            border-radius: 30px;
+            padding: 1px 8px;
+            font-size: 0.65rem;
+            margin-left: 4px;
+        }
+        .global-totals {
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: var(--accent);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+        .footer-note {
+            margin-top: 14px;
+            text-align: center;
+            font-size: 0.65rem;
+            opacity: 0.7;
+        }
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+            justify-content: flex-end;
+        }
+        .file-input-hidden { display: none; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-overlay);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: var(--bg-surface);
+            border-radius: 28px;
+            max-width: 500px;
+            width: 90%;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            animation: fadeInUp 0.3s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-content textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+            resize: vertical;
+        }
+        .modal-buttons { display: flex; gap: 12px; justify-content: flex-end; }
+
+        @media (max-width: 640px) {
+            body { padding: 12px 8px; }
+            .tools { flex-wrap: nowrap; gap: 6px; overflow-x: auto; justify-content: flex-start; }
+            .tools select, .tools .week-nav, .tools button { flex-shrink: 0; font-size: 0.7rem; padding: 4px 8px; }
+            .range-label { min-width: 120px; font-size: 0.7rem; }
+            .action-bar { flex-wrap: nowrap; gap: 6px; justify-content: flex-start; overflow-x: auto; }
+            .action-bar button { flex-shrink: 0; font-size: 1rem; padding: 5px 8px; width: auto; }
+            .recap-section { grid-template-columns: 1fr; gap: 10px; }
+            .tab-btn { padding: 5px 12px; font-size: 0.8rem; }
+            select.shift-select-slot-a { width: 75px; }
+            select.shift-select-slot-b { width: 50px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header-bar">
+        <h1>📅 SHIFT MANAGER PRO</h1>
+        <div class="tools">
+            <select id="viewModeFilter">
+                <option value="week">📆 Minggu</option>
+                <option value="month">📅 Bulan</option>
+            </select>
+            <div class="week-nav">
+                <button id="navPrevBtn">◀</button>
+                <span id="rangeLabel" class="range-label">-</span>
+                <button id="navNextBtn">▶</button>
+            </div>
+            <button id="darkModeToggle">🌓</button>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="jadwal">📋 Jadwal</button>
+        <button class="tab-btn" data-tab="pengaturan">⚙️ Pengaturan</button>
+    </div>
+
+    <!-- Tab Pane: Jadwal -->
+    <div id="tabJadwal" class="tab-pane active-pane">
+        <div class="action-bar">
+            <button id="backupBtn" data-icon="💾">💾 Backup</button>
+            <button id="restoreBtn" data-icon="📂">📂 Restore</button>
+            <button id="exportCsvBtn" data-icon="📎">📎 CSV</button>
+            <button id="exportHtmlBtn" data-icon="🖨️">🖨️ HTML</button>
+            <button id="resetAllBtn" class="danger-btn" data-icon="⚠️">⚠️ Reset</button>
+            <input type="file" id="restoreFileInput" accept=".json" class="file-input-hidden" />
+        </div>
+
+        <div class="table-wrapper">
+            <table class="shift-board" id="shiftTable">
+                <thead id="tableHeader"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="recap-section">
+            <div class="card">
+                <div class="card-header"><div class="recap-title" style="font-weight:700; border-left:3px solid var(--accent); padding-left:8px;">📊 REKAP PERSONIL (Off / Shift-1/2/3)</div></div>
+                <div id="personRecapContainer" class="rekap-list" style="max-height:200px;"></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="recap-title" style="font-weight:700; border-left:3px solid var(--accent); padding-left:8px;">📌 TOTAL SHIFT (hanya dihitung yg valid)</div></div>
+                <div id="globalShiftTotals" class="global-totals" style="margin-top:8px;">S1:0 | S2:0 | S3:0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Pane: Pengaturan -->
+    <div id="tabPengaturan" class="tab-pane">
+        <div class="card">
+            <div class="card-header"><h3>👥 Personil (CRUD)</h3><button class="toggle-card-btn" data-target="personil">🔽</button></div>
+            <div id="personilContent" class="card-content"><div id="personnelList" class="rekap-list" style="max-height:180px;"></div><button id="addPersonBtn" class="add-btn">+ Tambah</button></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>⏱️ Shift (CRUD)</h3><button class="toggle-card-btn" data-target="shift">🔽</button></div>
+            <div id="shiftContent" class="card-content"><div id="shiftList" class="rekap-list" style="max-height:180px;"></div><button id="addShiftBtn" class="add-btn">+ Tambah Shift</button></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h3>ℹ️ Info (CRUD) <button id="editInfoBtn" class="edit-info-btn" title="Edit konten info">✏️</button></h3><button class="toggle-card-btn" data-target="info">🔽</button></div>
+            <div id="infoContent" class="card-content"><div id="infoDisplay"></div></div>
+        </div>
+        <div class="footer-note" style="margin-top:12px;">✏️ Edit data master. Perubahan otomatis tersimpan.</div>
+    </div>
+
+    <div class="footer-note" style="margin-top:16px;">✔ Slot A: -, Off, Shift-1/2/3 | Slot B: -, S1/S2/S3. Tampilan ringkas & konsisten.</div>
+</div>
+
+<!-- Modal Edit Info -->
+<div id="editInfoModal" class="modal">
+    <div class="modal-content">
+        <h3>✏️ Edit Informasi</h3>
+        <textarea id="infoEditor" placeholder="Tulis konten info di sini...&#10;Setiap baris baru akan menjadi item list."></textarea>
+        <div class="modal-buttons">
+            <button id="saveInfoBtn" class="add-btn" style="width:auto;">Simpan</button>
+            <button id="cancelInfoBtn" class="action-btn" style="background:var(--danger);">Batal</button>
+        </div>
+        <div class="info-text-preview" style="font-size:0.7rem; opacity:0.7;">Setiap baris baru akan ditampilkan sebagai satu item.</div>
+    </div>
+</div>
+
+<!-- Welcome Modal -->
+<div id="welcomeModal" class="modal">
+    <div class="modal-content">
+        <h2>🎉 Selamat Datang!</h2>
+        <p>Aplikasi <strong>Shift Manager Pro</strong> siap digunakan.</p>
+        <ul style="text-align:left; margin-top:12px; padding-left:20px;">
+            <li>📌 2 Shift per Hari - setiap personil 2 slot</li>
+            <li>🔍 Prioritas: Slot A harus diisi sebelum Slot B</li>
+            <li>🔍 Jika Slot A = Off, Slot B otomatis kosong</li>
+            <li>🔍 Max 2 orang per shift per hari, tidak boleh shift ganda</li>
+            <li>📱 Tab "Jadwal" & "Pengaturan" untuk efisiensi</li>
+            <li>💾 Backup/Restore FULL semua data</li>
+        </ul>
+        <button class="modal-close-btn" id="closeModalBtn" style="margin-top:16px; background:var(--accent); color:white; border:none; padding:8px 20px; border-radius:40px;">Mulai Gunakan →</button>
+    </div>
+</div>
+
+<script>
+    // ========== STORAGE KEYS & GLOBAL STATE ==========
+    const STORAGE = {
+        fullBackup: "shift_app_full_backup_v1",
+        activeTab: "shift_active_tab"
+    };
+
+    const defaultShifts = [
+        { id: 1, name: "Shift-1", time: "08:00-16:00" },
+        { id: 2, name: "Shift-2", time: "16:00-24:00" },
+        { id: 3, name: "Shift-3", time: "24:00-08:00" }
+    ];
+    const defaultPersons = [
+        { id: 1, name: "Dandi" }, { id: 2, name: "Emon" }, { id: 3, name: "Makruf" }, { id: 4, name: "Riski" }, { id: 5, name: "Tobar" }
+    ];
+    const defaultInfoItems = [
+        "📌 Aplikasi Shift Schedule dengan 2 slot per hari",
+        "✅ Prioritas: Slot A harus diisi sebelum Slot B",
+        "✅ Slot B hanya -, S1, S2, S3 (tanpa Off)",
+        "✅ Jika Slot A = Off, maka Slot B wajib kosong (-)",
+        "✅ Shift maksimal 2 orang per hari & tidak boleh sama pada satu orang",
+        "🎨 Warna: OFF(merah), S1(kuning), S2(biru), S3(hijau), -(abu-abu)",
+        "📱 Tab Jadwal & Pengaturan",
+        "💾 Backup/Restore FULL",
+        "📎 Ekspor CSV: format S1/S2/S3"
+    ];
+
+    let shiftMaster = [], personMaster = [], scheduleDB = {};
+    let infoItems = [];
+    let viewMode = "week", currentBaseDate = null, currentDaysArray = [];
+    let isPersonilHidden = false, isShiftHidden = false, isInfoHidden = false;
+    let activeTab = "jadwal";
+
+    function saveFullAppState() {
+        const fullState = {
+            shifts: shiftMaster,
+            persons: personMaster,
+            schedule: scheduleDB,
+            infoItems: infoItems,
+            viewMode: viewMode,
+            currentBaseDate: currentBaseDate ? currentBaseDate.toISOString() : new Date().toISOString(),
+            theme: document.body.classList.contains('dark') ? 'dark' : 'light',
+            togglePersonil: isPersonilHidden,
+            toggleShift: isShiftHidden,
+            toggleInfo: isInfoHidden,
+            activeTab: activeTab
+        };
+        localStorage.setItem(STORAGE.fullBackup, JSON.stringify(fullState));
+    }
+
+    function loadFullAppState() {
+        const stored = localStorage.getItem(STORAGE.fullBackup);
+        if (!stored) {
+            shiftMaster = JSON.parse(JSON.stringify(defaultShifts));
+            personMaster = JSON.parse(JSON.stringify(defaultPersons));
+            scheduleDB = {};
+            infoItems = [...defaultInfoItems];
+            viewMode = "week";
+            currentBaseDate = getStartOfWeek(new Date());
+            document.body.classList.remove('dark');
+            isPersonilHidden = false;
+            isShiftHidden = false;
+            isInfoHidden = false;
+            activeTab = "jadwal";
+            saveFullAppState();
+            return;
+        }
+        try {
+            const data = JSON.parse(stored);
+            shiftMaster = data.shifts || JSON.parse(JSON.stringify(defaultShifts));
+            personMaster = data.persons || JSON.parse(JSON.stringify(defaultPersons));
+            scheduleDB = data.schedule || {};
+            infoItems = Array.isArray(data.infoItems) ? data.infoItems : [...defaultInfoItems];
+            viewMode = (data.viewMode === 'week' || data.viewMode === 'month') ? data.viewMode : "week";
+            if (data.currentBaseDate) {
+                currentBaseDate = new Date(data.currentBaseDate);
+                if (isNaN(currentBaseDate)) currentBaseDate = getStartOfWeek(new Date());
+            } else {
+                currentBaseDate = getStartOfWeek(new Date());
+            }
+            if (data.theme === 'dark') document.body.classList.add('dark');
+            else document.body.classList.remove('dark');
+            isPersonilHidden = data.togglePersonil === true;
+            isShiftHidden = data.toggleShift === true;
+            isInfoHidden = data.toggleInfo === true;
+            activeTab = (data.activeTab === 'jadwal' || data.activeTab === 'pengaturan') ? data.activeTab : "jadwal";
+        } catch(e) {
+            console.warn("Error load backup:", e);
+            shiftMaster = JSON.parse(JSON.stringify(defaultShifts));
+            personMaster = JSON.parse(JSON.stringify(defaultPersons));
+            scheduleDB = {};
+            infoItems = [...defaultInfoItems];
+            viewMode = "week";
+            currentBaseDate = getStartOfWeek(new Date());
+            document.body.classList.remove('dark');
+            isPersonilHidden = false;
+            isShiftHidden = false;
+            isInfoHidden = false;
+            activeTab = "jadwal";
+        }
+    }
+
+    function saveInfoContent() { saveFullAppState(); renderInfoCard(); }
+    function saveShifts() { saveFullAppState(); renderAll(); }
+    function savePersons() { saveFullAppState(); renderAll(); }
+    function saveSchedule() { saveFullAppState(); renderAll(); }
+    function saveToggleStates() { saveFullAppState(); applyToggleUI(); }
+    function saveTheme() { saveFullAppState(); }
+    function saveViewMode() { saveFullAppState(); }
+    function saveBaseDate() { saveFullAppState(); }
+
+    function getStartOfWeek(d) { let date = new Date(d); let day = date.getDay(); let diff = (day === 0 ? 6 : day - 1); date.setDate(date.getDate() - diff); date.setHours(0,0,0,0); return date; }
+    function getStartOfMonth(d) { let date = new Date(d); date.setDate(1); date.setHours(0,0,0,0); return date; }
+    function adjustBaseDateByMode() {
+        if (viewMode === 'week') currentBaseDate = getStartOfWeek(currentBaseDate);
+        else currentBaseDate = getStartOfMonth(currentBaseDate);
+        saveBaseDate();
+    }
+
+    function buildDaysArray() {
+        let days = [];
+        if (viewMode === 'week') {
+            let monday = new Date(currentBaseDate);
+            let dayNames = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+            for (let i = 0; i < 7; i++) {
+                let d = new Date(monday); d.setDate(monday.getDate() + i);
+                let dateISO = d.toISOString().split('T')[0];
+                let dayName = dayNames[i];
+                let bulanNama = d.toLocaleDateString('id-ID', { month: 'long' });
+                let tahunSingkat = d.getFullYear().toString().slice(-2);
+                let dateLabel = `${dayName}, ${d.getDate()} ${bulanNama} '${tahunSingkat}`;
+                days.push({ dateISO, dateLabel, dayName, fullDate: d });
+            }
+        } else {
+            let year = currentBaseDate.getFullYear(), month = currentBaseDate.getMonth();
+            let first = new Date(year, month, 1), last = new Date(year, month+1, 0);
+            let dayIndo = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+            for (let d = new Date(first); d <= last; d.setDate(d.getDate()+1)) {
+                let cd = new Date(d);
+                let dateISO = cd.toISOString().split('T')[0];
+                let dayName = dayIndo[cd.getDay()];
+                let bulanNama = cd.toLocaleDateString('id-ID', { month: 'long' });
+                let tahunSingkat = cd.getFullYear().toString().slice(-2);
+                let dateLabel = `${dayName}, ${cd.getDate()} ${bulanNama} '${tahunSingkat}`;
+                days.push({ dateISO, dateLabel, dayName, fullDate: cd });
+            }
+        }
+        return days;
+    }
+
+    function updateRangeLabel() {
+        let span = document.getElementById('rangeLabel');
+        if (!span || !currentDaysArray.length) return;
+        if (viewMode === 'week') {
+            let start = currentDaysArray[0].fullDate, end = currentDaysArray[6].fullDate;
+            span.innerText = `${start.getDate()}/${start.getMonth()+1} - ${end.getDate()}/${end.getMonth()+1}`;
+        } else {
+            let first = currentDaysArray[0].fullDate, last = currentDaysArray[currentDaysArray.length-1].fullDate;
+            let bulan = first.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+            span.innerText = `${bulan} (${first.getDate()}-${last.getDate()})`;
+        }
+    }
+
+    function getAssignment(personId, dateISO, slot) {
+        let key = `${personId}|${dateISO}|${slot}`;
+        return scheduleDB.hasOwnProperty(key) ? scheduleDB[key] : null;
+    }
+    function setAssignment(personId, dateISO, slot, value) {
+        let key = `${personId}|${dateISO}|${slot}`;
+        if (value === null || value === 'null') delete scheduleDB[key];
+        else scheduleDB[key] = value;
+        saveSchedule();
+    }
+
+    function countShiftForDate(dateISO, shiftId, excludePersonId, excludeSlot) {
+        let count = 0;
+        for (let person of personMaster) {
+            for (let slot of [1,2]) {
+                if (person.id === excludePersonId && slot === excludeSlot) continue;
+                let val = getAssignment(person.id, dateISO, slot);
+                if (val === shiftId) count++;
+            }
+        }
+        return count;
+    }
+
+    function isDuplicateShiftForPerson(personId, dateISO, currentSlot, newShiftValue) {
+        if (newShiftValue === null || newShiftValue === 0) return false;
+        let otherSlot = currentSlot === 1 ? 2 : 1;
+        let otherValue = getAssignment(personId, dateISO, otherSlot);
+        return (otherValue === newShiftValue);
+    }
+
+    function isSlotAPriorityViolation(personId, dateISO, slot, newValue) {
+        if (slot === 2 && newValue !== null && newValue !== 0) {
+            let slotAValue = getAssignment(personId, dateISO, 1);
+            if (slotAValue === null) return true;
+        }
+        return false;
+    }
+
+    function isSlotARestrictViolation(personId, dateISO, slot, newValue) {
+        if (slot === 2 && newValue !== null) {
+            let slotAValue = getAssignment(personId, dateISO, 1);
+            if (slotAValue === 0) return true;
+        }
+        return false;
+    }
+
+    function validateChange(personId, dateISO, slot, newValue) {
+        if (isSlotAPriorityViolation(personId, dateISO, slot, newValue)) {
+            alert(`⚠️ Slot A masih kosong! Harap isi Slot A terlebih dahulu sebelum mengisi Slot B.`);
+            return false;
+        }
+        if (isSlotARestrictViolation(personId, dateISO, slot, newValue)) {
+            alert(`⚠️ Karena Slot A sudah "Off" (libur), Slot B tidak dapat diisi. Biarkan tetap "-".`);
+            return false;
+        }
+        if (newValue !== null && newValue !== 0 && isDuplicateShiftForPerson(personId, dateISO, slot, newValue)) {
+            let shiftName = newValue === 1 ? 'Shift-1' : newValue === 2 ? 'Shift-2' : 'Shift-3';
+            alert(`⚠️ ${personMaster.find(p=>p.id===personId)?.name} sudah memiliki ${shiftName} pada slot lain di hari yang sama.`);
+            return false;
+        }
+        if (newValue !== null && newValue !== 0) {
+            let currentCount = countShiftForDate(dateISO, newValue, personId, slot);
+            if (currentCount >= 2) {
+                let shiftName = newValue === 1 ? 'Shift-1' : newValue === 2 ? 'Shift-2' : 'Shift-3';
+                alert(`⚠️ ${shiftName} sudah mencapai batas maksimal 2 orang pada hari ${dateISO}.`);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function computeRecapForCurrentView() {
+        let stats = {}, global = {1:0,2:0,3:0};
+        personMaster.forEach(p => stats[p.id] = { off:0, s1:0, s2:0, s3:0, name: p.name });
+        for (let day of currentDaysArray) {
+            for (let person of personMaster) {
+                for (let slot of [1,2]) {
+                    let val = getAssignment(person.id, day.dateISO, slot);
+                    let target = stats[person.id];
+                    if (val === 0) target.off += 1;
+                    else if (val === 1) { target.s1 +=1; global[1] +=1; }
+                    else if (val === 2) { target.s2 +=1; global[2] +=1; }
+                    else if (val === 3) { target.s3 +=1; global[3] +=1; }
+                }
+            }
+        }
+        return { perPerson: Object.values(stats), global };
+    }
+
+    function getCellClassByValue(val) {
+        if (val === null) return "cell-empty";
+        if (val === 0) return "cell-off";
+        if (val === 1) return "cell-shift1";
+        if (val === 2) return "cell-shift2";
+        if (val === 3) return "cell-shift3";
+        return "cell-empty";
+    }
+
+    // Slot A: opsi - , Off , Shift-1 , Shift-2 , Shift-3
+    function generateSlotAOptions(selectedVal) {
+        let opts = `<option value="null">-</option>`;
+        opts += `<option value="0" ${selectedVal === 0 ? 'selected' : ''}>Off</option>`;
+        for (let s of shiftMaster) {
+            let selected = (selectedVal === s.id) ? 'selected' : '';
+            opts += `<option value="${s.id}" ${selected}>${s.name}</option>`;
+        }
+        return opts;
+    }
+
+    // Slot B: opsi - , S1 , S2 , S3
+    function generateSlotBOptions(selectedVal) {
+        let opts = `<option value="null">-</option>`;
+        for (let s of shiftMaster) {
+            let selected = (selectedVal === s.id) ? 'selected' : '';
+            opts += `<option value="${s.id}" ${selected}>S${s.id}</option>`;
+        }
+        return opts;
+    }
+
+    function renderShiftTable() {
+        let thead = document.getElementById('tableHeader');
+        let tbody = document.getElementById('tableBody');
+        if (!currentDaysArray.length) return;
+        let headerHtml = '<tr><th>Personil</th>';
+        for (let day of currentDaysArray) {
+            let isWeekend = (day.dayName === 'Sabtu' || day.dayName === 'Minggu');
+            let wc = isWeekend ? 'class="th-weekend"' : '';
+            headerHtml += `<th colspan="2" ${wc}>${day.dateLabel}</th>`;
+        }
+        headerHtml += '</td>';
+        thead.innerHTML = headerHtml;
+        let bodyHtml = '';
+        for (let person of personMaster) {
+            bodyHtml += `<tr>`;
+            bodyHtml += `<td class="person-name">${escapeHtml(person.name)}</td>`;
+            for (let day of currentDaysArray) {
+                let valA = getAssignment(person.id, day.dateISO, 1);
+                let cellClassA = getCellClassByValue(valA);
+                let optHtmlA = generateSlotAOptions(valA);
+                let selectValueA = (valA === null ? 'null' : valA);
+                let valB = getAssignment(person.id, day.dateISO, 2);
+                let cellClassB = getCellClassByValue(valB);
+                let optHtmlB = generateSlotBOptions(valB);
+                let selectValueB = (valB === null ? 'null' : valB);
+                bodyHtml += `<td class="${cellClassA}">
+                                <select class="shift-select-slot-a" data-person="${person.id}" data-date="${day.dateISO}" data-slot="1" data-oldvalue="${selectValueA}">
+                                    ${optHtmlA}
+                                </select>
+                              </td>`;
+                bodyHtml += `<td class="${cellClassB}">
+                                <select class="shift-select-slot-b" data-person="${person.id}" data-date="${day.dateISO}" data-slot="2" data-oldvalue="${selectValueB}">
+                                    ${optHtmlB}
+                                </select>
+                              </td>`;
+            }
+            bodyHtml += `</tr>`;
+        }
+        tbody.innerHTML = bodyHtml;
+        document.querySelectorAll('.shift-select-slot-a, .shift-select-slot-b').forEach(sel => {
+            let oldVal = sel.getAttribute('data-oldvalue');
+            sel.value = oldVal;
+            sel.removeEventListener('change', handleShiftChange);
+            sel.addEventListener('change', handleShiftChange);
+        });
+    }
+
+    async function handleShiftChange(e) {
+        let select = e.target;
+        let personId = parseInt(select.dataset.person);
+        let dateISO = select.dataset.date;
+        let slot = parseInt(select.dataset.slot);
+        let oldRawValue = select.getAttribute('data-oldvalue');
+        let oldValue = (oldRawValue === 'null') ? null : parseInt(oldRawValue);
+        let newRawValue = select.value;
+        let newValue = (newRawValue === 'null') ? null : parseInt(newRawValue);
+        if (oldValue === newValue) return;
+        if (!validateChange(personId, dateISO, slot, newValue)) {
+            select.value = (oldValue === null ? 'null' : oldValue);
+            return;
+        }
+        setAssignment(personId, dateISO, slot, newValue);
+    }
+
+    // CRUD Person & Shift
+    function renderPersonnelList() {
+        let cont = document.getElementById('personnelList');
+        if (!cont) return;
+        if (personMaster.length === 0) { cont.innerHTML = '<div class="list-item">Kosong</div>'; return; }
+        let html = '';
+        for (let p of personMaster) {
+            html += `<div class="list-item"><span><strong>${escapeHtml(p.name)}</strong></span>
+                    <div class="item-actions"><button class="edit-person" data-id="${p.id}">✏️</button>
+                    <button class="del-person" data-id="${p.id}">🗑️</button></div></div>`;
+        }
+        cont.innerHTML = html;
+        document.querySelectorAll('.edit-person').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.dataset.id); editPerson(id); }));
+        document.querySelectorAll('.del-person').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.dataset.id); deletePerson(id); }));
+    }
+    function renderShiftList() {
+        let cont = document.getElementById('shiftList');
+        if (!cont) return;
+        if (shiftMaster.length === 0) { cont.innerHTML = '<div class="list-item">Kosong</div>'; return; }
+        let html = '';
+        for (let s of shiftMaster) {
+            html += `<div class="list-item"><span><strong>${escapeHtml(s.name)}</strong> (${escapeHtml(s.time)})</span>
+                    <div class="item-actions"><button class="edit-shift" data-id="${s.id}">✏️</button>
+                    <button class="del-shift" data-id="${s.id}">🗑️</button></div></div>`;
+        }
+        cont.innerHTML = html;
+        document.querySelectorAll('.edit-shift').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.dataset.id); editShift(id); }));
+        document.querySelectorAll('.del-shift').forEach(btn => btn.addEventListener('click', () => { let id = parseInt(btn.dataset.id); deleteShift(id); }));
+    }
+    function editPerson(id) { let p = personMaster.find(p=>p.id===id); if(p){ let newName = prompt("Edit nama:", p.name); if(newName && newName.trim()){ p.name = newName.trim(); savePersons(); } } }
+    function deletePerson(id) { if(personMaster.length<=1){ alert("Minimal 1 personil"); return; } if(confirm("Hapus personil?")){ Object.keys(scheduleDB).forEach(k=>{ if(k.startsWith(`${id}|`)) delete scheduleDB[k]; }); personMaster = personMaster.filter(p=>p.id!==id); savePersons(); } }
+    function editShift(id) { let s = shiftMaster.find(s=>s.id===id); if(s){ let newName = prompt("Nama Shift:", s.name); let newTime = prompt("Jam:", s.time); if(newName && newName.trim()) s.name = newName.trim(); if(newTime && newTime.trim()) s.time = newTime.trim(); saveShifts(); } }
+    function deleteShift(id) { if(shiftMaster.length<=1){ alert("Minimal 1 shift"); return; } if(confirm("Hapus shift?")){ Object.keys(scheduleDB).forEach(k=>{ if(scheduleDB[k] === id) delete scheduleDB[k]; }); shiftMaster = shiftMaster.filter(s=>s.id!==id); saveShifts(); } }
+    function addPerson() { let newName = prompt("Nama personil:"); if(newName && newName.trim()){ let maxId = personMaster.length? Math.max(...personMaster.map(p=>p.id)):0; personMaster.push({ id: maxId+1, name: newName.trim() }); savePersons(); } }
+    function addShift() { let newName = prompt("Nama Shift:"); if(!newName) return; let newTime = prompt("Jam:"); if(!newTime) return; let maxId = shiftMaster.length? Math.max(...shiftMaster.map(s=>s.id)):0; shiftMaster.push({ id: maxId+1, name: newName.trim(), time: newTime.trim() }); saveShifts(); }
+
+    function renderRecapAndTotals() {
+        let { perPerson, global } = computeRecapForCurrentView();
+        let recapDiv = document.getElementById('personRecapContainer');
+        let recapHtml = '';
+        for (let p of perPerson) {
+            recapHtml += `<div class="list-item"><span><strong>${escapeHtml(p.name)}</strong></span>
+                          <span><span class="stat-badge" style="background:var(--danger);">Off:${p.off}</span>
+                          <span class="stat-badge" style="background:#f4c542;">S1:${p.s1}</span>
+                          <span class="stat-badge" style="background:#3b82f6;">S2:${p.s2}</span>
+                          <span class="stat-badge" style="background:#2e7d32;">S3:${p.s3}</span></span></div>`;
+        }
+        recapDiv.innerHTML = recapHtml;
+        document.getElementById('globalShiftTotals').innerHTML = `S1:${global[1]||0} | S2:${global[2]||0} | S3:${global[3]||0}`;
+    }
+
+    function renderInfoCard() {
+        const container = document.getElementById('infoDisplay');
+        if (!container) return;
+        let html = '<div class="info-content-list">';
+        for (let item of infoItems) {
+            html += `<div class="list-item"><span>${escapeHtml(item)}</span></div>`;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function applyToggleUI() {
+        let pc = document.getElementById('personilContent');
+        let sc = document.getElementById('shiftContent');
+        let ic = document.getElementById('infoContent');
+        let pBtn = document.querySelector('.toggle-card-btn[data-target="personil"]');
+        let sBtn = document.querySelector('.toggle-card-btn[data-target="shift"]');
+        let iBtn = document.querySelector('.toggle-card-btn[data-target="info"]');
+        if (pc) { if (isPersonilHidden) { pc.classList.add('hidden'); if(pBtn) pBtn.innerHTML='🔼'; } else { pc.classList.remove('hidden'); if(pBtn) pBtn.innerHTML='🔽'; } }
+        if (sc) { if (isShiftHidden) { sc.classList.add('hidden'); if(sBtn) sBtn.innerHTML='🔼'; } else { sc.classList.remove('hidden'); if(sBtn) sBtn.innerHTML='🔽'; } }
+        if (ic) { if (isInfoHidden) { ic.classList.add('hidden'); if(iBtn) iBtn.innerHTML='🔼'; } else { ic.classList.remove('hidden'); if(iBtn) iBtn.innerHTML='🔽'; } }
+    }
+    function togglePersonil() { isPersonilHidden = !isPersonilHidden; saveToggleStates(); applyToggleUI(); }
+    function toggleShift() { isShiftHidden = !isShiftHidden; saveToggleStates(); applyToggleUI(); }
+    function toggleInfo() { isInfoHidden = !isInfoHidden; saveToggleStates(); applyToggleUI(); }
+    function setViewMode(mode) { if(mode!=='week' && mode!=='month') return; viewMode=mode; saveViewMode(); adjustBaseDateByMode(); renderAll(); }
+    function toggleDarkMode() { document.body.classList.toggle('dark'); saveTheme(); renderAll(); }
+    function navigate(delta) {
+        if (viewMode === 'week') {
+            let newMonday = new Date(currentBaseDate);
+            newMonday.setDate(currentBaseDate.getDate() + delta*7);
+            currentBaseDate = getStartOfWeek(newMonday);
+        } else {
+            let newMonth = new Date(currentBaseDate);
+            newMonth.setMonth(currentBaseDate.getMonth() + delta);
+            currentBaseDate = getStartOfMonth(newMonth);
+        }
+        saveBaseDate();
+        renderAll();
+    }
+
+    function backupData() {
+        const fullState = {
+            shifts: shiftMaster,
+            persons: personMaster,
+            schedule: scheduleDB,
+            infoItems: infoItems,
+            viewMode: viewMode,
+            currentBaseDate: currentBaseDate.toISOString(),
+            theme: document.body.classList.contains('dark') ? 'dark' : 'light',
+            togglePersonil: isPersonilHidden,
+            toggleShift: isShiftHidden,
+            toggleInfo: isInfoHidden,
+            activeTab: activeTab
+        };
+        const dataStr = JSON.stringify(fullState, null, 2);
+        const blob = new Blob([dataStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `shift_full_backup_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert("Backup berhasil.");
+    }
+    function restoreData(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data.shifts) shiftMaster = data.shifts;
+                if (data.persons) personMaster = data.persons;
+                if (data.schedule) scheduleDB = data.schedule;
+                if (data.infoItems) infoItems = data.infoItems;
+                if (data.viewMode === 'week' || data.viewMode === 'month') viewMode = data.viewMode;
+                if (data.currentBaseDate) currentBaseDate = new Date(data.currentBaseDate);
+                if (data.theme === 'dark') document.body.classList.add('dark'); else document.body.classList.remove('dark');
+                isPersonilHidden = data.togglePersonil === true;
+                isShiftHidden = data.toggleShift === true;
+                isInfoHidden = data.toggleInfo === true;
+                if (data.activeTab === 'jadwal' || data.activeTab === 'pengaturan') activeTab = data.activeTab;
+                saveFullAppState();
+                renderAll();
+                alert("Restore berhasil!");
+            } catch(err) { alert("File tidak valid"); }
+        };
+        reader.readAsText(file);
+    }
+    function resetAllAssignments() { if(confirm("Reset semua slot ke '-'?")) { scheduleDB={}; saveSchedule(); alert("Reset selesai."); } }
+    function exportToCSV() {
+        if (!currentDaysArray.length || !personMaster.length) return;
+        let headers = ["Personil"];
+        for (let day of currentDaysArray) headers.push(day.dateLabel);
+        let rows = [headers];
+        for (let person of personMaster) {
+            let row = [person.name];
+            for (let day of currentDaysArray) {
+                let s1 = getAssignment(person.id, day.dateISO, 1);
+                let s2 = getAssignment(person.id, day.dateISO, 2);
+                let d1 = (s1 === null ? "-" : (s1 === 0 ? "Off" : `S${s1}`));
+                let d2 = (s2 === null ? "-" : `S${s2}`);
+                row.push(`${d1} | ${d2}`);
+            }
+            rows.push(row);
+        }
+        let csv = rows.map(r=>r.map(c=>`"${c}"`).join(",")).join("\n");
+        let blob = new Blob(["\uFEFF"+csv], {type:"text/csv"});
+        let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`shift_${Date.now()}.csv`; a.click(); URL.revokeObjectURL(blob);
+    }
+    function exportToHTML() {
+        let clone = document.getElementById('shiftTable').cloneNode(true);
+        let style = document.createElement('style');
+        style.textContent = `body{font-family:sans-serif;margin:20px} table{border-collapse:collapse} th,td{border:1px solid #aaa;padding:6px} td.cell-empty{background:#f0f0f0} td.cell-off{background:#ffaaaa} td.cell-shift1{background:#fff176} td.cell-shift2{background:#64b5f6} td.cell-shift3{background:#a5d6a7} .th-weekend{font-weight:bold;color:#d32f2f}`;
+        let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Shift Export</title>${style.outerHTML}</head><body><h2>Jadwal Shift</h2>${clone.outerHTML}<p>${new Date()}</p></body></html>`;
+        let blob = new Blob([html], {type:"text/html"}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`shift_${Date.now()}.html`; a.click(); URL.revokeObjectURL(blob);
+    }
+
+    function openEditInfoModal() { document.getElementById('editInfoModal').style.display='flex'; document.getElementById('infoEditor').value=infoItems.join('\n'); }
+    function closeEditInfoModal() { document.getElementById('editInfoModal').style.display='none'; }
+    function saveInfoEdit() { let lines = document.getElementById('infoEditor').value.split(/\r?\n/).filter(l=>l.trim()); if(lines.length===0) lines=["ℹ️ Info"]; infoItems=lines; saveInfoContent(); closeEditInfoModal(); }
+
+    function setActiveTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active-pane'));
+        document.getElementById(`tab${tab.charAt(0).toUpperCase()+tab.slice(1)}`).classList.add('active-pane');
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+        saveFullAppState();
+    }
+
+    function renderAll() {
+        currentDaysArray = buildDaysArray();
+        updateRangeLabel();
+        renderShiftTable();
+        renderPersonnelList();
+        renderShiftList();
+        renderInfoCard();
+        renderRecapAndTotals();
+        applyToggleUI();
+        if (window.innerWidth <= 640) {
+            document.querySelectorAll('.action-bar button').forEach(btn => {
+                let icon = btn.getAttribute('data-icon');
+                if (icon && btn.id !== 'resetAllBtn') btn.innerHTML = icon;
+                else if (btn.id === 'resetAllBtn') btn.innerHTML = '⚠️';
+            });
+        } else {
+            document.querySelectorAll('.action-bar button').forEach(btn => {
+                if (btn.id === 'backupBtn') btn.innerHTML = '💾 Backup';
+                else if (btn.id === 'restoreBtn') btn.innerHTML = '📂 Restore';
+                else if (btn.id === 'exportCsvBtn') btn.innerHTML = '📎 CSV';
+                else if (btn.id === 'exportHtmlBtn') btn.innerHTML = '🖨️ HTML';
+                else if (btn.id === 'resetAllBtn') btn.innerHTML = '⚠️ Reset';
+            });
+        }
+    }
+
+    function showWelcomePopup() {
+        const modal = document.getElementById('welcomeModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.getElementById('closeModalBtn').onclick = () => modal.style.display = 'none';
+            modal.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
+        }
+    }
+
+    function init() {
+        loadFullAppState();
+        adjustBaseDateByMode();
+        renderAll();
+        setActiveTab(activeTab);
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 640) {
+                document.querySelectorAll('.action-bar button').forEach(btn => {
+                    let icon = btn.getAttribute('data-icon');
+                    if (icon && btn.id !== 'resetAllBtn') btn.innerHTML = icon;
+                    else if (btn.id === 'resetAllBtn') btn.innerHTML = '⚠️';
+                });
+            } else {
+                document.querySelectorAll('.action-bar button').forEach(btn => {
+                    if (btn.id === 'backupBtn') btn.innerHTML = '💾 Backup';
+                    else if (btn.id === 'restoreBtn') btn.innerHTML = '📂 Restore';
+                    else if (btn.id === 'exportCsvBtn') btn.innerHTML = '📎 CSV';
+                    else if (btn.id === 'exportHtmlBtn') btn.innerHTML = '🖨️ HTML';
+                    else if (btn.id === 'resetAllBtn') btn.innerHTML = '⚠️ Reset';
+                });
+            }
+        });
+        document.getElementById('viewModeFilter').addEventListener('change', e=>setViewMode(e.target.value));
+        document.getElementById('navPrevBtn').addEventListener('click',()=>navigate(-1));
+        document.getElementById('navNextBtn').addEventListener('click',()=>navigate(1));
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+        document.getElementById('addPersonBtn').addEventListener('click', addPerson);
+        document.getElementById('addShiftBtn').addEventListener('click', addShift);
+        document.getElementById('backupBtn').addEventListener('click', backupData);
+        document.getElementById('restoreBtn').addEventListener('click', ()=>document.getElementById('restoreFileInput').click());
+        document.getElementById('restoreFileInput').addEventListener('change', e=>{ if(e.target.files.length) restoreData(e.target.files[0]); e.target.value=''; });
+        document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
+        document.getElementById('exportHtmlBtn').addEventListener('click', exportToHTML);
+        document.getElementById('resetAllBtn').addEventListener('click', resetAllAssignments);
+        document.querySelector('.toggle-card-btn[data-target="personil"]')?.addEventListener('click', togglePersonil);
+        document.querySelector('.toggle-card-btn[data-target="shift"]')?.addEventListener('click', toggleShift);
+        document.querySelector('.toggle-card-btn[data-target="info"]')?.addEventListener('click', toggleInfo);
+        document.getElementById('editInfoBtn')?.addEventListener('click', openEditInfoModal);
+        document.getElementById('saveInfoBtn')?.addEventListener('click', saveInfoEdit);
+        document.getElementById('cancelInfoBtn')?.addEventListener('click', closeEditInfoModal);
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => setActiveTab(btn.getAttribute('data-tab')));
+        });
+        showWelcomePopup();
+    }
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
+    window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+                  </html>
