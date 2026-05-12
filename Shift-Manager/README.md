@@ -1,8 +1,8 @@
 Berikut adalah ringkasan fitur teknis Shift Manager Pro dalam format teks biasa (plain text):
 
-============================================================
-SHIFT MANAGER PRO - RINGKASAN FITUR TEKNIS
-============================================================
+=========================================
+# SHIFT MANAGER PRO - RINGKASAN FITUR TEKNIS
+=========================================
 
 1. ARSITEKTUR DATA & PENYIMPANAN
 
@@ -235,6 +235,3 @@ saveFullAppState() → localStorage → renderAll()
 · Tidak memerlukan server atau koneksi internet.
 · Cocok untuk manajemen shift internal kantor.
 
-============================================================
-Akhir Ringkasan Fitur Teknis
-============================================================
