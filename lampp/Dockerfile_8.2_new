@@ -1,0 +1,66 @@
+FROM php:8.2-apache
+
+# Install system packages & PHP extensions
+RUN apt-get update && apt-get install -y -qq \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libzip-dev \
+    libicu-dev \
+    libmagickwand-dev \
+    default-mysql-client \
+    zip \
+    unzip \
+    curl \
+    git \
+    imagemagick \
+    nano \
+    && docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        gd \
+        mbstring \
+        zip \
+        mysqli \
+        pdo \
+        pdo_mysql \
+        intl \
+        opcache \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick opcache \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Apache modules
+RUN a2enmod rewrite headers expires headers
+
+# Timezone
+RUN echo "date.timezone=Asia/Jakarta" > /usr/local/etc/php/conf.d/timezone.ini
+
+# PHP upload optimization
+RUN echo "upload_max_filesize=100M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size=100M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "max_execution_time=300" >> /usr/local/etc/php/conf.d/uploads.ini
+
+# Enable OPCache production
+RUN echo "opcache.enable=1" > /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=4000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.revalidate_freq=60" >> /usr/local/etc/php/conf.d/opcache.ini
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy custom php.ini (optional)
+COPY php.ini /usr/local/etc/php/
+
+# Permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Expose Apache
+EXPOSE 80
