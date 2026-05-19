@@ -1,12 +1,13 @@
 FROM php:7.4-apache
 
-# Install system dependencies + mysqli
-RUN apt-get update -y && apt-get install -y -qq \
+# Install dependencies
+RUN apt-get update && apt-get install -y -qq \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     libonig-dev \
     libzip-dev \
+    libmagickwand-dev \
     default-mysql-client \
     zip \
     unzip \
@@ -14,18 +15,19 @@ RUN apt-get update -y && apt-get install -y -qq \
     && docker-php-ext-configure gd \
         --with-freetype \
         --with-jpeg \
-    && docker-php-ext-install \
+    && docker-php-ext-install -j$(nproc) \
         gd \
         mbstring \
         zip \
         mysqli \
         pdo \
         pdo_mysql \
-    && docker-php-ext-enable mysqli pdo_mysql \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick mysqli pdo_mysql \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache modules
+# Apache modules
 RUN a2enmod rewrite headers expires
 
 # Timezone
@@ -34,7 +36,7 @@ RUN echo "date.timezone=Asia/Jakarta" > /usr/local/etc/php/conf.d/timezone.ini
 # Working directory
 WORKDIR /var/www/html
 
-# Copy custom php.ini
+# Copy php.ini
 COPY php.ini /usr/local/etc/php/
 
 # Permission
