@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y -qq \
     default-mysql-client \
     zip \
     unzip \
+    cron \
     imagemagick \
     && docker-php-ext-configure gd \
         --with-freetype \
