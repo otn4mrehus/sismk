@@ -2,6 +2,7 @@ FROM php:7.4-apache
 
 # Install dependencies
 RUN apt-get update && apt-get install -y -qq \
+    apt-utils \
     libpng-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
